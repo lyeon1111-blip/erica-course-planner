@@ -1,0 +1,299 @@
+<title>수강신청 전 한 화면</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* 레이아웃: 단일 컬럼 스크롤. 색은 데이터와 상태에만 쓰고 페이지 크롬은 중성 회색으로 둔다. */
+:root{
+  --plane:#f3f4f6; --surface:#fcfcfd; --sunken:#eceef1;
+  --ink:#14161a; --ink2:#4b5059; --muted:#81868f;
+  --rule:#dfe2e7; --rule2:#c8cdd4;
+  --ok:#2a78d6; --part:#eda100; --no:#d03b3b;
+  --onfill:#ffffff; --onpart:#0b0b0b;
+  --f-sans:"IBM Plex Sans KR",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --plane:#0e0f11; --surface:#1a1b1e; --sunken:#232528;
+  --ink:#f0f1f3; --ink2:#b9bec6; --muted:#8b9099;
+  --rule:#2c2e32; --rule2:#3a3d42;
+  --ok:#3987e5; --part:#c98500; --no:#d03b3b;
+  --onfill:#ffffff; --onpart:#0b0b0b; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --plane:#0e0f11; --surface:#1a1b1e; --sunken:#232528;
+  --ink:#f0f1f3; --ink2:#b9bec6; --muted:#8b9099;
+  --rule:#2c2e32; --rule2:#3a3d42;
+  --ok:#3987e5; --part:#c98500; --no:#d03b3b;
+  --onfill:#ffffff; --onpart:#0b0b0b; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--plane);color:var(--ink);font-family:var(--f-sans);
+  font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:62rem;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{text-wrap:balance;margin:0;line-height:1.25;letter-spacing:-.01em}
+p{margin:0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-size:.78rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+section{border-bottom:1px solid var(--rule)}
+section>.wrap{padding-block:3.4rem}
+.hero{background:var(--surface)}
+.hero>.wrap{margin-top:calc(-1 * env(safe-area-inset-top,0px));
+  padding-top:calc(env(safe-area-inset-top,0px) + 4rem);padding-bottom:3.4rem}
+h1{font-size:clamp(1.95rem,5.4vw,3.2rem);font-weight:700;margin-block:.9rem .9rem}
+.lede{font-size:clamp(1.05rem,2.3vw,1.28rem);color:var(--ink2);max-width:47ch}
+h2{font-size:clamp(1.45rem,3.3vw,2rem);font-weight:700;margin-block:.7rem 1rem}
+h3{font-size:1.02rem;font-weight:600;margin-bottom:.35rem}
+.note{font-size:.92rem;color:var(--muted);max-width:64ch;margin-top:1rem}
+.body{max-width:58ch;color:var(--ink2);margin-top:.6rem}
+.body strong{color:var(--ink);font-weight:600}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));gap:1px;
+  margin-top:2.4rem;background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.tile{background:var(--surface);padding:1.1rem 1.15rem;min-width:0}
+.tile .v{font-size:clamp(1.65rem,4vw,2.25rem);font-weight:600;font-family:var(--f-mono);line-height:1.1;display:block}
+.tile .k{font-size:.84rem;color:var(--muted);margin-top:.3rem;display:block}
+
+/* 수강신청 전 / 후 */
+.phase{display:grid;gap:.7rem;margin-top:1.7rem}
+.ph{background:var(--surface);border:1px solid var(--rule);border-radius:11px;padding:1.2rem 1.25rem;
+  border-left:4px solid var(--rule2)}
+.ph.now{border-left-color:var(--no)}
+.ph.fine{border-left-color:var(--ok)}
+.ph-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:.5rem .8rem}
+.ph-h b{font-size:1.06rem}
+.ph-h em{font-style:normal;font-size:.8rem;font-weight:600;padding:.12rem .5rem;border-radius:5px}
+.ph.now em{background:var(--no);color:var(--onfill)}
+.ph.fine em{background:var(--ok);color:var(--onfill)}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem;margin-top:.9rem}
+.app{font-family:var(--f-mono);font-size:.84rem;font-weight:600;background:var(--sunken);
+  border:1px solid var(--rule);border-radius:7px;padding:.42rem .68rem;white-space:nowrap}
+.arw{color:var(--muted);font-size:1.05rem;line-height:1}
+.ph p{font-size:.93rem;color:var(--ink2);margin-top:.85rem}
+
+/* 비교표 */
+.cmp{overflow-x:auto;margin-top:1.6rem;border:1px solid var(--rule);border-radius:10px;background:var(--surface)}
+.cmp table{border-collapse:collapse;width:100%;min-width:33rem;font-size:.93rem}
+.cmp th,.cmp td{padding:.7rem .9rem;border-bottom:1px solid var(--rule);text-align:center;white-space:nowrap}
+.cmp th:first-child,.cmp td:first-child{text-align:left;white-space:normal;min-width:10.5rem}
+.cmp thead th{font-size:.84rem;font-weight:600;color:var(--ink2);background:var(--sunken)}
+.cmp thead th.us{color:var(--ok)}
+.cmp tbody tr:last-child td{border-bottom:0}
+.cmp .y{color:var(--ok);font-weight:600}
+.cmp .n{color:var(--muted)}
+.cmp .p{color:var(--part);font-weight:600}
+.cmp td.us{background:color-mix(in srgb,var(--ok) 7%,transparent)}
+
+/* 추천 모드 */
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.5rem;margin-top:1.5rem}
+.mode{text-align:left;font-family:var(--f-sans);background:var(--surface);color:var(--ink);
+  border:1px solid var(--rule);border-left:4px solid var(--rule2);border-radius:10px;
+  padding:.85rem .95rem;cursor:pointer;min-width:0;transition:border-color .15s,background .15s}
+.mode:hover{background:var(--sunken)}
+.mode:focus-visible{outline:2px solid var(--ok);outline-offset:2px}
+.mode[aria-pressed="true"]{border-color:var(--ok);border-left-color:var(--ok);
+  background:color-mix(in srgb,var(--ok) 11%,transparent)}
+.mode b{font-size:.96rem;display:block}
+.mode span{font-size:.83rem;color:var(--ink2);display:block;margin-top:.2rem;line-height:1.45}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:11px;
+  padding:1.2rem 1.25rem;margin-top:.9rem}
+.panel h3{margin-bottom:.5rem}
+.panel>p{font-size:.94rem;color:var(--ink2)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:.5rem .8rem;margin-top:1rem;font-size:.9rem}
+.kv dt{font-weight:600;color:var(--ink2);white-space:nowrap}
+.kv dd{margin:0;color:var(--ink2);min-width:0}
+.chip-ok,.chip-no{font-size:.76rem;font-weight:600;padding:.1rem .45rem;border-radius:5px;white-space:nowrap}
+.chip-ok{background:var(--ok);color:var(--onfill)}
+.chip-no{background:var(--part);color:var(--onpart)}
+.seq{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-top:.9rem;
+  background:var(--sunken);border-radius:8px;padding:.7rem .8rem}
+.seq .c{font-family:var(--f-mono);font-size:.84rem;font-weight:600;background:var(--surface);
+  border:1px solid var(--rule);border-radius:6px;padding:.3rem .55rem;white-space:nowrap}
+
+.steps{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule);
+  border-radius:10px;overflow:hidden;margin-top:1.4rem}
+.step{background:var(--surface);padding:1.05rem 1.15rem;display:grid;
+  grid-template-columns:2.1rem 1fr;gap:.9rem;align-items:start}
+.step .no{font-family:var(--f-mono);font-size:.84rem;font-weight:600;color:var(--muted);padding-top:.18rem}
+.step .tx{min-width:0}
+.step .tx p{font-size:.93rem;color:var(--ink2);margin-top:.2rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(228px,1fr));gap:.7rem;margin-top:1.4rem}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:1.1rem 1.15rem;min-width:0}
+.card p{font-size:.92rem;color:var(--ink2);margin-top:.35rem}
+.card .num{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);display:block;margin-bottom:.45rem}
+
+.cta{display:inline-flex;align-items:center;gap:.45rem;background:var(--ok);color:var(--onfill);
+  text-decoration:none;font-weight:600;font-size:.97rem;padding:.65rem 1.15rem;border-radius:9px;
+  transition:filter .15s}
+.cta:hover{filter:brightness(1.08)}
+.cta:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+ul.plain{margin:.7rem 0 0;padding-left:1.1rem;color:var(--ink2);font-size:.95rem;max-width:63ch}
+ul.plain li{margin-bottom:.45rem}
+ul.plain li::marker{color:var(--rule2)}
+.foot>.wrap{padding-block:2.2rem 3rem}
+.foot p{font-size:.88rem;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:560px){body{font-size:16px}.step{grid-template-columns:1.6rem 1fr;gap:.6rem}}
+</style>
+
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow">데이터 애널리스틱 · 팀 프로젝트</p>
+    <h1>수강신청이 끝나면<br>앱 하나로 충분하다<br>문제는 그 전이다</h1>
+    <p class="lede">신청이 끝나면 헤이영만 보면 됩니다. 그런데 신청 전에는 에타로 시간표를 짜면서 헤이영으로 &ldquo;내가 뭐가 부족했더라&rdquo;를 계속 확인해야 합니다. 그 구간을 한 화면으로 만드는 게 목표입니다.</p>
+    <div class="tiles">
+      <div class="tile"><span class="v">455</span><span class="k">수집한 과목</span></div>
+      <div class="tile"><span class="v">37</span><span class="k">광고홍보 전공 과목</span></div>
+      <div class="tile"><span class="v">8</span><span class="k">학과·학번별 졸업요건</span></div>
+      <div class="tile"><span class="v">338</span><span class="k">신청 조건 문구</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">문제</p>
+    <h2>신청 전에만 앱을 번갈아 본다</h2>
+    <div class="phase">
+      <div class="ph now">
+        <div class="ph-h"><b>수강신청 전</b><em>여기가 문제</em></div>
+        <div class="flow">
+          <span class="app">에타</span><span class="arw">⇄</span><span class="app">헤이영</span>
+          <span class="arw">⇄</span><span class="app">에타</span><span class="arw">⇄</span><span class="app">헤이영</span>
+          <span class="arw">⇄</span><span class="app">…</span>
+        </div>
+        <p>에타에서 과목을 하나 담을 때마다, 헤이영으로 돌아가 남은 요건을 다시 확인합니다. 에타는 내가 뭘 채웠는지 모르고, 헤이영은 이번 학기에 뭐가 열리는지 모르기 때문입니다.</p>
+      </div>
+      <div class="ph fine">
+        <div class="ph-h"><b>수강신청 후</b><em>이미 괜찮음</em></div>
+        <div class="flow"><span class="app">헤이영</span></div>
+        <p>시간표, 출석, 성적, 졸업사정이 전부 한 앱에 있습니다. 여기는 건드릴 필요가 없습니다.</p>
+      </div>
+    </div>
+    <p class="note">그래서 저희가 만드는 건 헤이영을 대체하는 앱이 아니라, <strong>신청 전 구간을 한 화면으로 합치는 도구</strong>입니다.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">위치</p>
+    <h2>두 앱의 장점을 한곳에</h2>
+    <p class="body">둘 다 잘 만든 앱입니다. 헤이영은 내가 뭘 얼마나 채웠는지 정확히 알고, 에타는 이번 학기 개설 과목을 카테고리로 잘 보여줍니다. 저희는 그 둘을 한 화면에 놓고, 그 위에 추천을 얹습니다.</p>
+    <div class="cmp">
+      <table>
+        <thead><tr><th>하는 일</th><th>헤이영</th><th>에타</th><th class="us">우리</th></tr></thead>
+        <tbody>
+          <tr><td>쓰는 시점</td><td class="n">신청 <b>후</b></td><td class="n">신청 <b>전</b></td><td class="us y">신청 <b>전</b></td></tr>
+          <tr><td>내 성적·이수내역</td><td class="y">자동</td><td class="p">직접 입력</td><td class="us y">붙여넣기</td></tr>
+          <tr><td>남은 졸업요건</td><td class="y">있음</td><td class="n">없음</td><td class="us y">있음</td></tr>
+          <tr><td>개설 과목 검색</td><td class="n">없음</td><td class="y">있음</td><td class="us y">있음</td></tr>
+          <tr><td>시간표 조립</td><td class="n">없음</td><td class="y">있음</td><td class="us y">있음</td></tr>
+          <tr><td>남은 요건 ↔ 개설 과목 대조</td><td class="n">없음</td><td class="n">없음</td><td class="us y">있음</td></tr>
+          <tr><td><b>다음에 뭘 들을지 추천</b></td><td class="n">없음</td><td class="n">없음</td><td class="us y">개발 중</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">에타가 이미 잘하는 검색과 시간표 조립은 저희도 만듭니다. 다만 그 위에 &ldquo;내 졸업까지 남은 것&rdquo;이 올라간다는 점이 다릅니다.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">서비스</p>
+    <h2>입력은 한 번, 그다음은 자동</h2>
+    <div class="cards">
+      <div class="card"><span class="num">STEP 1</span><h3>학과·학번 입력</h3><p>8가지 졸업요건 규칙 중 내 것이 적용됩니다. 한 번만 입력하면 됩니다.</p></div>
+      <div class="card"><span class="num">STEP 2</span><h3>이수내역 붙여넣기</h3><p>포털 성적조회를 복사해 넣으면 남은 요건이 영역별로 계산됩니다. 에타처럼 과목을 하나씩 입력할 필요가 없고, 성적은 브라우저 안에만 남습니다.</p></div>
+      <div class="card"><span class="num">STEP 3</span><h3>내 조건에 맞는 과목만</h3><p>남은 요건을 채우고, 내가 신청할 수 있고, 시간이 겹치지 않는 과목만 남습니다. 헤이영으로 돌아갈 일이 없습니다.</p></div>
+    </div>
+    <p class="body" style="margin-top:1.6rem">학과마다 이수구분이 다르게 잡히는 과목, 과목명이 바뀐 과목, 영어전용 표시가 붙었지만 교양필수라 요건에 안 들어가는 과목 — 이런 건 <strong>사용자가 알 필요가 없도록</strong> 미리 조사해 두고 자동으로 걸러집니다.</p>
+    <p class="note">검증: 팀원의 졸업사정조회 결과(이수 97학점 / 남은 29학점)를 포털 두 가지 출력 형식 모두에서 그대로 재현했습니다. 산학협력 4학점과 사회봉사 2학점도 자동으로 도출됩니다.</p>
+    <p style="margin-top:1.6rem"><a class="cta" href="app/">프로토타입 열어 보기 <span aria-hidden="true">→</span></a></p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">개발 중</p>
+    <h2>추천은 사용자가 방향을 고른다</h2>
+    <p class="body">남은 요건을 채우는 조합은 하나가 아닙니다. 누구는 공강을 원하고, 누구는 특정 분야를 더 듣고 싶어 합니다. 그래서 <strong>하나의 정답을 내미는 대신 사용자가 기준을 고르게</strong> 하려고 합니다. 추천은 전공 과목 중심입니다. 교양은 저학년에 몰려 있고, 3·4학년이 되면 전공을 어떻게 채우느냐가 남기 때문입니다.</p>
+    <div class="modes" id="modes"></div>
+    <div class="panel" id="panel"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">진행 과정</p>
+    <h2>데이터를 어떻게 모았나</h2>
+    <p class="body">한양대 포털은 <span class="mono">robots.txt</span>에서 모든 자동 수집을 막아 둡니다. 크롤러를 쓰지 않고, 사람이 조회한 결과를 붙여넣으면 도구가 정리해 쌓는 방식으로 설계했습니다.</p>
+    <div class="steps">
+      <div class="step"><span class="no">01</span><div class="tx"><h3>수집 도구 제작</h3><p>Google Apps Script로 수강편람 조회 결과를 23개 열로 정리합니다. 붙여넣은 순서가 아니라 값의 패턴으로 열을 찾아내, 포털 화면이 바뀌어도 깨지지 않습니다.</p></div></div>
+      <div class="step"><span class="no">02</span><div class="tx"><h3>전수 수집</h3><p>전공은 학과별로 조회하고, 교양은 전체를 한 번에 가져왔습니다. 조회 결과를 붙여넣는 것만으로 <strong>455개 과목</strong>이 쌓였습니다.</p></div></div>
+      <div class="step"><span class="no">03</span><div class="tx"><h3>신청 조건 확보</h3><p>이수제한은 학년별로 들을 과목을 나눠 둔 장치인데, 내용이 목록에 없어 과목별 팝업을 직접 열었습니다. <strong>338개</strong>의 문구를 <span class="mono">학과 × 학년</span> 표로 파싱했습니다.</p></div></div>
+      <div class="step"><span class="no">04</span><div class="tx"><h3>졸업요건 결합</h3><p>4개 학과 × 2개 학번의 졸업요건을 코드로 옮기고, 학수번호를 공통 열쇠로 이수내역과 개설 과목을 이었습니다.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">다음 단계</p>
+    <h2>추천을 완성하려면 더 필요한 것</h2>
+    <ul class="plain">
+      <li><strong>여러 학기 데이터.</strong> 지금은 2026-2학기 한 학기치뿐이라 &ldquo;이 과목은 매 학기 열린다 / 이번에 놓치면 1년 뒤&rdquo;를 판단할 수 없습니다. 필수 과목을 언제 들어야 하는지 알려 주려면 이게 필요합니다.</li>
+      <li><strong>학과 교육과정표.</strong> 선후수 관계가 수강편람에 없습니다. 지금은 과목명에서만 추정할 수 있고, 광고홍보 전공 37과목 중 3쌍만 잡힙니다.</li>
+      <li><strong>분야 라벨링.</strong> 퍼포먼스 마케팅, 데이터, 크리에이티브처럼 과목을 분야로 묶는 작업입니다. 사용자가 &ldquo;이쪽으로 더 듣고 싶다&rdquo;를 고를 수 있게 하려면 필요합니다.</li>
+      <li>졸업요건은 커뮤니케이션&amp;컬처대학 <strong>4개 학과</strong>만 입력했습니다.</li>
+      <li>에타의 강의평과 &ldquo;담은 수&rdquo;는 에타의 데이터라 쓰지 않았습니다.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="foot">
+  <div class="wrap">
+    <p>데이터: 한양대 ERICA 수강편람 2026-2학기 · 455개 과목 · 2026년 11월 16~17일 수집<br>
+    이수제한 문구 338건 파싱 · 졸업요건 규칙 4개 학과 × 2개 학번 · 예시 기준 광고홍보학과</p>
+  </div>
+</section>
+
+<script>
+const M=[
+ {k:"free",t:"공강을 만들고 싶다",d:"비우고 싶은 요일을 고르면 그 요일을 피해 조합을 찾습니다.",
+  h:"공강 요일 우선",
+  body:"남은 요건을 채우는 조합 중, 지정한 요일에 수업이 없는 것만 남깁니다. 요건을 못 채우는 조합은 제외합니다.",
+  rows:[["필요한 데이터","개설 과목의 요일·교시 + 내 남은 요건"],["지금 가능한가","가능"],
+        ["한계","공강을 만들면 선택지가 줄어, 요건을 다 못 채우는 학기가 생길 수 있습니다"]],ready:true},
+ {k:"seq",t:"듣던 걸 이어서 듣고 싶다",d:"이번에 들은 과목의 다음 단계를 다음 학기에 보여줍니다.",
+  h:"계열 이어 듣기",
+  body:"내 이수내역에 있는 과목의 후속 과목을 찾아 올립니다. 지금은 과목명에서 추정하는 수준이라, 광고홍보 전공 37과목 중 3쌍만 잡힙니다.",
+  seq:[["데이터애널리틱스","심화데이터애널리틱스"],["광고홍보캡스톤디자인1","광고홍보캡스톤디자인2"],["스타트업비지니스프랙티컴","스타트업비지니스프랙티컴2"]],
+  rows:[["필요한 데이터","학과 교육과정표의 선후수 관계"],["지금 가능한가","일부만 — 이름이 이어지는 과목만"],
+        ["다음 작업","교육과정표를 수집해 과목 간 관계를 채우기"]],ready:false},
+ {k:"grad",t:"졸업을 빨리 하고 싶다",d:"남은 요건을 가장 빨리 줄이는 과목부터 올립니다.",
+  h:"졸업 최단",
+  body:"한 과목이 여러 요건에 동시에 걸리는 경우가 있습니다. 광고홍보 전공 중 13개 분반이 영어전용을 겸하고, 설득커뮤니케이션은 전공핵심·영어전용·IC-PBL 세 요건을 한 번에 줄입니다. 그런 과목을 위로 올립니다.",
+  rows:[["필요한 데이터","졸업요건 규칙 + 내 이수내역 + 과목의 요건 태그"],["지금 가능한가","가능"],
+        ["한계","남은 학기 수를 모르면 한 학기에 몰아넣는 추천이 될 수 있습니다"]],ready:true}
+];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let SEL="free";
+
+function draw(){
+  document.getElementById('modes').innerHTML=M.map(m=>
+    `<button class="mode" data-k="${m.k}" aria-pressed="${m.k===SEL}">
+      <b>${esc(m.t)}</b><span>${esc(m.d)}</span></button>`).join('');
+  const m=M.find(x=>x.k===SEL);
+  const seq=m.seq?`<div class="seq">${m.seq.map(p=>
+      `<span class="c">${esc(p[0])}</span><span style="color:var(--muted)">→</span><span class="c">${esc(p[1])}</span>`
+    ).join('<span style="flex-basis:100%;height:0"></span>')}</div>`:'';
+  document.getElementById('panel').innerHTML=
+    `<h3>${esc(m.h)} ${m.ready?'<span class="chip-ok">지금 가능</span>':'<span class="chip-no">데이터 더 필요</span>'}</h3>
+     <p>${esc(m.body)}</p>${seq}
+     <dl class="kv">${m.rows.map(r=>`<dt>${esc(r[0])}</dt><dd>${esc(r[1])}</dd>`).join('')}</dl>`;
+  document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{SEL=b.dataset.k;draw();}));
+}
+draw();
+</script>
