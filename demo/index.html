@@ -1,0 +1,978 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="한양대 ERICA 수강신청 도우미 — 졸업요건 진단과 시간표 짜기를 한 화면에서. 시연용 시안.">
+<meta name="robots" content="noindex">
+<title>ERICA 수강신청 도우미 — 시연</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap">
+<style>
+/* 레이아웃: 좁으면 한 칸, 900px 위에서는 왼쪽 시간표 · 오른쪽 과목 목록 두 칸.
+   색은 masstige.io 기준 — 흰 바탕에 라임 블록, 검정 잉크, 알약 모양. */
+:root{
+  --plane:#eef3f9; --surface:#fff; --sunken:#f3f7fb; --card:#fff;
+  --ink:#0f1c2d; --ink2:#44586f; --muted:#8094aa;
+  --rule:#dde6f0; --rule2:#c2d0e0;
+  --lime:#0e4a84;            /* 한양 블루 — 담은 것 · 행동 */
+  --ok:#0e4a84;
+  --blue2:#2a78d6;           /* 밝은 파랑 — 보조 */
+  --tint:#e6eff9;            /* 아주 연한 파랑 면 */
+  --good:#0a7d3c; --warn:#b5781a; --no:#c6362f;
+  --lav:#2a78d6;
+  --onlime:#fff; --onfill:#fff;
+  --r:16px; --pill:100px; --ui:1;
+  --f:"Noto Sans KR",system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --plane:#070d15; --surface:#0f1925; --sunken:#152130; --card:#0f1925;
+  --ink:#eef3f9; --ink2:#a8bbd0; --muted:#7a8ca1;
+  --rule:#1e2b3b; --rule2:#2d3e52;
+  --lime:#4b9bea; --ok:#4b9bea; --blue2:#6fb2f2; --tint:#13243a;
+  --good:#3fbf6a; --warn:#d9a441; --no:#e4675f; --lav:#6fb2f2;
+  --onlime:#06111c; --onfill:#06111c; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --plane:#070d15; --surface:#0f1925; --sunken:#152130; --card:#0f1925;
+  --ink:#eef3f9; --ink2:#a8bbd0; --muted:#7a8ca1;
+  --rule:#1e2b3b; --rule2:#2d3e52;
+  --lime:#4b9bea; --ok:#4b9bea; --blue2:#6fb2f2; --tint:#13243a;
+  --good:#3fbf6a; --warn:#d9a441; --no:#e4675f; --lav:#6fb2f2;
+  --onlime:#06111c; --onfill:#06111c; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{font-size:calc(16px * var(--ui))}
+body{margin:0;background:var(--plane);color:var(--ink);font-family:var(--f);font-size:1rem;line-height:1.6}
+.wrap{max-width:74rem;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font-size:2rem;font-weight:800;margin:0 0 .5rem;letter-spacing:-.045em;line-height:1.18}
+.top{padding-block:2rem .2rem}
+.draft{font-size:.72rem;font-weight:700;vertical-align:middle;padding:.2rem .6rem;
+  border-radius:var(--pill);background:var(--sunken);border:1px solid var(--rule);color:var(--muted);
+  letter-spacing:0;margin-left:.4rem}
+.top p{margin:0;color:var(--ink2);font-size:.95rem}
+.eyebrow{display:inline-flex;align-items:center;gap:.4rem;font-size:.76rem;font-weight:700;
+  color:var(--ink2);letter-spacing:.02em;margin-bottom:.5rem}
+.eyebrow::before{content:"";width:.45rem;height:.45rem;border-radius:50%;background:var(--ok)}
+.tryl{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1rem}
+.tryl span{font-size:.78rem;font-weight:600;background:var(--sunken);border:1px solid var(--rule);
+  border-radius:var(--pill);padding:.3rem .8rem;color:var(--ink2);display:inline-flex;align-items:center;gap:.35rem}
+.tryl span::before{content:"";width:.33rem;height:.33rem;border-radius:50%;background:var(--muted)}
+.sizer{display:flex;gap:.4rem;margin-top:1rem;align-items:center;flex-wrap:wrap}
+.sizer .lb{font-size:.78rem;color:var(--muted);font-weight:700}
+.szb{font-family:var(--f);font-size:.82rem;font-weight:700;border:1px solid var(--rule);
+  background:var(--surface);color:var(--ink2);padding:.38rem .85rem;border-radius:var(--pill);cursor:pointer}
+.szb[aria-pressed="true"]{background:var(--ok);color:#fff;border-color:var(--ok)}
+.szb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+.app{margin:1.4rem auto 3rem;background:var(--surface);border:1px solid var(--rule);
+  border-radius:22px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.03),0 12px 34px rgba(0,0,0,.06)}
+.app.narrow{max-width:26.25rem}
+.hdr{display:flex;align-items:center;gap:1rem;padding:1rem 1.2rem;
+  border-bottom:1px solid var(--rule);background:var(--card);flex-wrap:wrap}
+.hdr .ttl{font-size:1.15rem;font-weight:800;letter-spacing:-.04em}
+.hdr .sem{font-size:.8rem;color:var(--muted);font-weight:600}
+.hdr .right{margin-left:auto;display:flex;align-items:center;gap:.7rem}
+.hdr .cnt{font-size:1.05rem;font-weight:800;letter-spacing:-.03em;white-space:nowrap}
+.hdr .cnt small{font-size:.76rem;font-weight:500;color:var(--muted);letter-spacing:0}
+.pips{display:flex;gap:4px}
+.pip{width:.5rem;height:.5rem;border-radius:50%;background:var(--rule2);display:inline-block}
+.pip.on{background:var(--good)}
+
+.cols{display:grid;grid-template-columns:minmax(23.75rem,26.25rem) 1fr;align-items:start}
+.left{padding:1.2rem;border-right:1px solid var(--rule)}
+.right{padding:1.2rem;min-width:0;max-height:40rem;overflow-y:auto}
+.app.narrow .cols{grid-template-columns:1fr}
+.app.narrow .left{border-right:0;border-bottom:1px solid var(--rule)}
+.app.narrow .right{max-height:26rem}
+
+/* 시간표 */
+.tt{--rowh:1.875rem;--head:1.625rem;--gut:1.5rem;
+  border:1px solid var(--rule);border-radius:var(--r);background:var(--card);
+  position:relative;overflow:hidden;padding:0 7px 7px}
+.tt .grid{display:grid;grid-template-columns:var(--gut) repeat(5,1fr)}
+.tt .hd{height:var(--head);display:flex;align-items:center;justify-content:center;
+  font-size:.76rem;font-weight:700;color:var(--ink2)}
+.tt .hd.free{color:var(--muted);text-decoration:line-through}
+.tt .hr{height:var(--rowh);font-size:.64rem;color:var(--muted);line-height:1;font-weight:500;
+  display:flex;align-items:flex-start;justify-content:flex-end;padding-right:6px;transform:translateY(-.3em)}
+.tt .cell{height:var(--rowh);padding:0;background:none;cursor:pointer;border:0;
+  border-top:1px solid color-mix(in srgb,var(--rule) 70%,transparent)}
+.tt .cell:hover{background:color-mix(in srgb,var(--ok) 11%,transparent)}
+.tt .cell:focus-visible{outline:2px solid var(--ink);outline-offset:-2px;border-radius:4px}
+.tt .cell.freeday{background:color-mix(in srgb,var(--muted) 12%,transparent);cursor:not-allowed}
+.tt .cell.picked{background:color-mix(in srgb,var(--ok) 20%,transparent)}
+.blk{position:absolute;border-radius:10px;font-size:.7rem;line-height:1.24;padding:4px 7px;
+  overflow:hidden;color:var(--onlime);background:var(--lime);z-index:2;border:0;font-family:var(--f);
+  text-align:left;cursor:pointer;font-weight:700;display:flex;flex-direction:column;gap:1px;
+  letter-spacing:-.02em}
+.blk .bt{font-size:.62rem;opacity:.7;font-weight:500;letter-spacing:0}
+.blk:hover{filter:brightness(1.04)}
+.blk:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.blk.cl{background:var(--no);color:#fff}
+.blk.ghost{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok);
+  border:1.5px dashed var(--ok);cursor:default;z-index:1}
+.tthint{font-size:.74rem;color:var(--muted);text-align:center;padding:.6rem 0 0;font-weight:500}
+
+/* 공강 */
+.freerow{display:flex;align-items:center;gap:.35rem;margin-top:.9rem;flex-wrap:wrap}
+.freerow .lb{font-size:.78rem;color:var(--muted);font-weight:700;margin-right:.2rem}
+.dayb{font-family:var(--f);font-size:.82rem;font-weight:700;border:1px solid var(--rule);
+  background:var(--sunken);color:var(--ink2);min-width:2.75rem;height:2.75rem;
+  border-radius:var(--pill);cursor:pointer;padding:0 .35rem}
+.dayb[aria-pressed="true"]{background:var(--ok);color:#fff;border-color:var(--ok)}
+.dayb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* 학점 + 메시지 */
+.sumbar{display:flex;align-items:center;gap:.9rem;padding:.9rem 1rem;margin-top:.9rem;
+  border:1px solid var(--rule);border-radius:var(--r);background:var(--card)}
+.sumbar .n{font-size:1.6rem;font-weight:800;letter-spacing:-.04em;white-space:nowrap}
+.sumbar .n span{font-size:.84rem;color:var(--muted);font-weight:600;letter-spacing:0}
+.sumbar .x{flex:1;min-width:0}
+.sumbar .lab{font-size:.76rem;color:var(--muted);margin-bottom:.4rem;font-weight:600}
+.gauge{height:.6rem;border-radius:var(--pill);background:var(--sunken);overflow:hidden;
+  box-shadow:inset 0 0 0 1px var(--rule)}
+.gauge i{display:block;height:100%;background:var(--lime);border-radius:var(--pill);transition:width .25s}
+.gauge i.done{background:var(--lime)}
+.msg{margin-top:.75rem;border-radius:var(--r);padding:.8rem .95rem;font-size:.88rem;font-weight:500;
+  border:1px solid var(--rule);background:var(--sunken);color:var(--ink2)}
+.msg.good{border-color:var(--good);background:color-mix(in srgb,var(--good) 11%,transparent);color:var(--ink)}
+.msg.warn{border-color:var(--rule2);background:var(--card);color:var(--ink)}
+.msg.bad{border-color:var(--no);background:color-mix(in srgb,var(--no) 9%,var(--card));color:var(--ink)}
+.msg b{font-weight:800}
+.inline{font-family:var(--f);font-size:.8rem;font-weight:700;border:1px solid var(--ok);background:var(--ok);
+  color:#fff;border-radius:var(--pill);padding:.22rem .7rem;cursor:pointer;margin-left:.4rem}
+.inline.ghostb{background:transparent;color:var(--ok);border-color:var(--ok)}
+
+/* 담은 과목 */
+.mine{margin-top:1rem}
+.mrow{display:flex;align-items:center;gap:.5rem;padding:.45rem .75rem;border:1px solid var(--rule);
+  border-radius:var(--pill);background:var(--card);font-size:.84rem;margin-bottom:.35rem;font-weight:600}
+.mrow .g{color:var(--muted);font-size:.76rem;margin-left:auto;white-space:nowrap;font-weight:500}
+.mrow button{font-family:var(--f);border:1px solid var(--rule2);background:none;color:var(--ink2);
+  border-radius:var(--pill);padding:.14rem .6rem;font-size:.76rem;cursor:pointer;font-weight:600}
+.mrow button:hover{border-color:var(--ink);color:var(--ink)}
+
+/* 요건 칩 */
+.chips{display:flex;gap:.45rem;flex-wrap:wrap;padding-bottom:.5rem;margin-bottom:.3rem}
+.app.narrow .chips{flex-wrap:nowrap;overflow-x:auto}
+.chip{flex:none;font-family:var(--f);border:1px solid var(--rule);border-radius:var(--pill);
+  background:var(--sunken);color:var(--muted);padding:.46rem .95rem;cursor:pointer;font-size:.85rem;
+  font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:.45rem;letter-spacing:-.01em}
+.chip::before{content:"";width:.4rem;height:.4rem;border-radius:50%;background:currentColor;flex:none}
+.chip.left{background:var(--card);color:var(--ok);border-color:var(--ok)}
+.chip:hover{color:var(--ink2);border-color:var(--rule2)}
+.chip.left:hover{color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ok);color:#fff;border-color:var(--ok)}
+.chip .dots{letter-spacing:-1px;font-size:.72rem}
+.chip.ok{background:var(--card);color:var(--good);border-color:var(--good)}
+.chip.ok[aria-pressed="true"]{background:var(--good);color:#fff;border-color:var(--good)}
+
+.fbar{display:flex;align-items:center;gap:.5rem;margin:.6rem 0 .3rem;padding:.55rem .5rem .55rem .9rem;
+  border-radius:var(--pill);background:color-mix(in srgb,var(--ok) 12%,transparent);color:var(--ink);
+  border:1px solid var(--ok);font-size:.84rem;font-weight:700}
+.fbar .x{margin-left:auto;font-family:var(--f);border:0;background:none;color:var(--ink2);
+  cursor:pointer;font-size:1.05rem;line-height:1;padding:.1rem .6rem}
+
+.secl{font-size:.76rem;font-weight:700;color:var(--muted);margin:1rem 0 .5rem}
+.list{display:flex;flex-direction:column;gap:.5rem}
+.item{border:1px solid var(--rule);border-radius:var(--r);background:var(--card);padding:.85rem 1rem;
+  transition:border-color .12s}
+.item:hover{border-color:var(--rule2)}
+.item.has{border-color:var(--ok);background:var(--tint);box-shadow:inset 0 0 0 1px var(--ok)}
+.ihead{display:flex;flex-wrap:wrap;align-items:baseline;gap:.3rem .65rem}
+.item .nm{font-size:1rem;font-weight:800;line-height:1.3;overflow-wrap:anywhere;letter-spacing:-.035em}
+.item .mt{font-size:.78rem;color:var(--muted);display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;font-weight:500}
+.tag{font-size:.69rem;font-weight:700;padding:.1rem .5rem;border-radius:var(--pill);
+  background:var(--sunken);color:var(--ink2)}
+.tag.e{background:var(--ok);color:var(--onfill)}
+.tag.p{background:var(--warn);color:#0b0b0b}
+.secs{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.65rem}
+.sec{font-family:var(--f);font-size:.82rem;font-weight:700;border:1px solid var(--rule2);
+  background:var(--surface);color:var(--ink);border-radius:var(--pill);padding:.38rem .8rem;cursor:pointer;
+  display:inline-flex;align-items:center;gap:.35rem;transition:border-color .12s,background .12s;
+  letter-spacing:-.01em}
+.sec:hover{border-color:var(--ok);color:var(--ok)}
+.sec:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.sec.on{background:var(--lime);border-color:var(--lime);color:var(--onlime)}
+.sec.cl,.sec.dup,.sec.off{color:var(--muted);border-color:var(--rule);background:var(--sunken)}
+.sec.cl:hover,.sec.dup:hover,.sec.off:hover{border-color:var(--rule2);color:var(--muted)}
+.sec .fl{font-style:normal;font-size:.66rem;font-weight:700;color:var(--warn);
+  font-variant-numeric:tabular-nums}
+.sec.on .fl{color:#fff;opacity:.8}
+.foot-note{font-size:.78rem;color:var(--muted);margin:1rem 0 0;line-height:1.6;font-weight:500}
+.foot-note b{color:var(--ink2);font-weight:700}
+.empty{text-align:center;padding:2rem .8rem}
+.empty b{display:block;color:var(--ink);font-size:.95rem;font-weight:700}
+.empty p{margin:.4rem 0 1rem;color:var(--muted);font-size:.85rem;font-weight:500}
+
+/* ── 경쟁률 대시보드 ─────────────────────────────────── */
+.bcard.wide{grid-area:wide;flex-direction:row;align-items:center;gap:1.6rem;flex-wrap:wrap}
+.bcard.wide .wl{flex:1;min-width:16rem}
+.bcard.wide .wr{display:flex;gap:1.6rem;flex-wrap:wrap}
+.dtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr));gap:.6rem;margin-bottom:1.3rem}
+.dtile{border:1px solid var(--rule);border-radius:var(--r);background:var(--card);padding:.9rem 1rem}
+.dtile .v{font-size:1.7rem;font-weight:800;letter-spacing:-.04em;line-height:1.1;display:block}
+.dtile .k{font-size:.76rem;color:var(--muted);display:block;margin-top:.25rem;font-weight:500}
+.dgrid{display:grid;grid-template-columns:minmax(20rem,26rem) 1fr;gap:1.2rem;align-items:start}
+@media (max-width:900px){.dgrid{grid-template-columns:1fr}}
+.panel{border:1px solid var(--rule);border-radius:var(--r);background:var(--card);padding:1.1rem}
+.panel h3{margin:0 0 .25rem;font-size:1rem;font-weight:800;letter-spacing:-.035em}
+.panel .ph{font-size:.8rem;color:var(--muted);margin:0 0 .9rem;font-weight:500}
+/* 히트맵 */
+.hm{display:grid;grid-template-columns:1.7rem repeat(5,1fr);gap:3px}
+.hm .lbl{font-size:.68rem;color:var(--muted);display:flex;align-items:center;justify-content:center;font-weight:600}
+.hm .cl{aspect-ratio:1/.72;border-radius:5px;display:flex;align-items:center;justify-content:center;
+  font-size:.6rem;font-weight:700;color:#fff;background:var(--sunken)}
+.hm .cl.e{color:var(--muted);font-weight:500}
+.hm .cl:focus-visible{outline:2.5px solid var(--ink);outline-offset:2px;z-index:2;position:relative}
+.hmtab{margin-top:.9rem;font-size:.78rem}
+.hmtab summary{cursor:pointer;color:var(--blue2);font-weight:700;padding:.3rem 0}
+.hmtab table{border-collapse:collapse;width:100%;margin-top:.5rem}
+.hmtab th,.hmtab td{border:1px solid var(--rule);padding:.3rem .2rem;text-align:center;font-weight:600}
+.hmtab thead th,.hmtab tbody th{background:var(--sunken);color:var(--ink2);font-size:.72rem}
+.hmtab td{color:var(--ink);font-variant-numeric:tabular-nums}
+.hmleg{display:flex;align-items:center;gap:.4rem;margin-top:.8rem;font-size:.72rem;color:var(--muted);font-weight:600}
+.hmleg .sw{width:1.4rem;height:.6rem;border-radius:3px}
+/* 격차 목록 */
+.gaps{display:flex;flex-direction:column;gap:.6rem}
+.gap{border:1px solid var(--rule);border-radius:var(--r);padding:.75rem .9rem;background:var(--card)}
+.gap .gh{display:flex;align-items:baseline;gap:.5rem;margin-bottom:.55rem}
+.gap .gn{font-size:.93rem;font-weight:800;letter-spacing:-.03em}
+.gap .gd{margin-left:auto;font-size:.78rem;font-weight:700;color:var(--ok);white-space:nowrap}
+.gsecs{display:flex;flex-wrap:wrap;gap:.35rem}
+.gsec{font-size:.78rem;font-weight:700;border-radius:var(--pill);padding:.26rem .62rem;
+  display:inline-flex;align-items:center;gap:.35rem;border:1px solid var(--rule2);background:var(--surface)}
+.gsec b{font-variant-numeric:tabular-nums}
+.gsec.low{border-color:var(--good);color:var(--good)}
+.gsec.high{border-color:var(--no);color:var(--no)}
+/* 막대 */
+.brow{display:grid;grid-template-columns:minmax(7rem,11rem) 1fr auto;gap:.6rem;align-items:center;
+  font-size:.84rem;margin-bottom:.4rem}
+.brow .bn{font-weight:600;overflow-wrap:anywhere;min-width:0}
+.btrack{min-width:0;position:relative;display:block;background:var(--sunken);border-radius:4px;height:1.1rem}
+.bfill{display:block;height:100%;border-radius:4px;background:var(--ok);max-width:100%}
+.btrack::after{content:"";position:absolute;top:-2px;bottom:-2px;left:var(--ref,70%);width:1px;
+  background:var(--ink2);opacity:.4}
+.bv{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:.8rem}
+
+/* ── 설정 ───────────────────────────────────────────── */
+.fab{position:fixed;z-index:50;
+  right:max(18px,env(safe-area-inset-right,0px));bottom:max(18px,env(safe-area-inset-bottom,0px));
+  display:inline-flex;align-items:center;gap:.45rem;font-family:var(--f);font-size:.82rem;font-weight:700;
+  background:var(--surface);color:var(--ink2);border:1px solid var(--rule2);border-radius:var(--pill);
+  padding:.5rem .9rem;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.fab:hover{border-color:var(--ok);color:var(--ok)}
+.fab:focus-visible{outline:2px solid var(--ok);outline-offset:2px}
+.fab .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--no);display:inline-block}
+.fab.ok .dot{background:var(--good)}
+.setwrap{max-width:46rem}
+.sgroup{margin-bottom:1.6rem}
+.sgroup .q{font-size:1.05rem;font-weight:800;letter-spacing:-.035em;margin:0 0 .2rem}
+.sgroup .hint{font-size:.84rem;color:var(--muted);margin:0 0 .75rem;font-weight:500}
+.opts{display:flex;flex-wrap:wrap;gap:.45rem}
+.opt{font-family:var(--f);font-size:.88rem;font-weight:700;border:1px solid var(--rule2);
+  background:var(--surface);color:var(--ink);border-radius:var(--pill);padding:.5rem 1rem;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--ok);color:var(--ok)}
+.opt[aria-pressed="true"]{background:var(--ok);color:#fff;border-color:var(--ok)}
+.opt:disabled{opacity:.45;cursor:not-allowed;border-style:dashed}
+.opt:focus-visible{outline:2px solid var(--ok);outline-offset:2px}
+.opt small{font-weight:500;opacity:.75;margin-left:.3rem}
+.pastebox{border:1px dashed var(--rule2);border-radius:var(--r);background:var(--sunken);
+  padding:1.1rem;text-align:center}
+.pastebox p{margin:0 0 .8rem;font-size:.86rem;color:var(--ink2);font-weight:500}
+.pastebox.on{border-style:solid;border-color:var(--good);background:color-mix(in srgb,var(--good) 8%,transparent)}
+.readout2{font-size:.88rem;font-weight:700;color:var(--good);display:flex;align-items:center;
+  justify-content:center;gap:.4rem}
+.notice{display:flex;align-items:flex-start;gap:.6rem;padding:.8rem .95rem;border-radius:var(--r);
+  background:color-mix(in srgb,var(--no) 9%,transparent);border:1px solid var(--no);
+  font-size:.88rem;font-weight:600;color:var(--ink);margin-bottom:1.4rem}
+
+/* ── 진단 화면 ───────────────────────────────────────── */
+.dcols{display:grid;grid-template-columns:minmax(21rem,24rem) 1fr;align-items:start}
+.app.narrow .dcols{grid-template-columns:1fr}
+.app.narrow .dleft{border-right:0;border-bottom:1px solid var(--rule)}
+.dleft{padding:1.4rem;border-right:1px solid var(--rule)}
+.dright{padding:1.4rem;min-width:0;max-height:40rem;overflow-y:auto}
+.app.narrow .dright{max-height:none;overflow:visible}
+.bignum{font-size:3.4rem;font-weight:800;letter-spacing:-.05em;line-height:1;color:var(--ok)}
+.bignum small{font-size:1.1rem;font-weight:700;letter-spacing:-.02em}
+.bigsub{font-size:.88rem;color:var(--ink2);margin-top:.5rem;font-weight:500}
+.totg{height:.75rem;border-radius:var(--pill);background:var(--sunken);overflow:hidden;margin-top:1rem;
+  box-shadow:inset 0 0 0 1px var(--rule);display:flex}
+.totg i{display:block;height:100%}
+.totg .got{background:var(--ok)}
+.totg .plan{background:color-mix(in srgb,var(--ok) 38%,transparent)}
+.legrow{display:flex;gap:1rem;margin-top:.6rem;font-size:.76rem;color:var(--muted);font-weight:600;flex-wrap:wrap}
+.legrow span{display:inline-flex;align-items:center;gap:.35rem}
+.legrow i{width:.6rem;height:.6rem;border-radius:3px;display:inline-block}
+.extra{margin-top:1.6rem}
+.xrow{display:flex;align-items:center;gap:.6rem;padding:.6rem 0;border-bottom:1px solid var(--rule);font-size:.88rem}
+.xrow:last-child{border-bottom:0}
+.xrow .mk{width:1.25rem;height:1.25rem;border-radius:50%;flex:none;display:inline-flex;
+  align-items:center;justify-content:center;font-size:.72rem;font-weight:800}
+.xrow .mk.y{background:var(--good);color:#fff}
+.xrow .mk.n{background:var(--sunken);color:var(--muted);box-shadow:inset 0 0 0 1px var(--rule2)}
+.xrow .v{margin-left:auto;font-weight:700;font-size:.82rem;color:var(--ink2);white-space:nowrap}
+.xrow.done .v{color:var(--good)}
+.areas{display:flex;flex-direction:column;gap:.55rem}
+.arow{border:1px solid var(--rule);border-radius:var(--r);background:var(--card);padding:.85rem 1rem}
+.arow.done{border-color:var(--good)}
+.ahead{display:flex;align-items:baseline;gap:.5rem}
+.ahead .nm{font-size:.98rem;font-weight:800;letter-spacing:-.03em}
+.ahead .st{margin-left:auto;font-size:.84rem;font-weight:700;color:var(--ok);white-space:nowrap}
+.arow.done .ahead .st{color:var(--good)}
+.abar{height:.5rem;border-radius:var(--pill);background:var(--sunken);overflow:hidden;margin-top:.6rem;
+  box-shadow:inset 0 0 0 1px var(--rule);display:flex}
+.abar i{display:block;height:100%}
+.abar .got{background:var(--ok)}
+.abar .plan{background:color-mix(in srgb,var(--ok) 38%,transparent)}
+.arow.done .abar .got{background:var(--good)}
+.anum{font-size:.76rem;color:var(--muted);margin-top:.4rem;font-weight:500}
+.cta{display:inline-flex;align-items:center;gap:.5rem;margin-top:1.5rem;font-family:var(--f);
+  font-size:.92rem;font-weight:700;border:0;background:var(--ok);color:#fff;
+  border-radius:var(--pill);padding:.7rem 1.2rem;cursor:pointer}
+.cta:hover{filter:brightness(1.08)}
+.cta:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.planline{margin-top:1rem;padding:.7rem .85rem;border-radius:var(--r);background:var(--tint);
+  font-size:.86rem;font-weight:600;color:var(--ink)}
+
+/* ── 선택 창 (벤토 그리드) ───────────────────────────── */
+.bento{display:grid;gap:.9rem;grid-template-columns:1.18fr 1fr 1fr;
+  grid-template-areas:"hero two two" "hero three four" "wide wide wide";align-items:stretch}
+.bcard{border-radius:26px;padding:1.6rem 1.7rem;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;text-align:left;font-family:var(--f);cursor:pointer;
+  border:1px solid var(--rule);background:var(--card);color:var(--ink);
+  transition:transform .14s,box-shadow .14s}
+.bcard:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.09)}
+.bcard:focus-visible{outline:2px solid var(--ok);outline-offset:3px}
+.bcard.hero{grid-area:hero;background:var(--tint);border-color:color-mix(in srgb,var(--ok) 20%,transparent)}
+.bcard.two{grid-area:two} .bcard.three{grid-area:three}
+.bcard.four{grid-area:four;background:var(--ok);color:#fff;border-color:var(--ok)}
+.bcard.four .bdesc{color:rgba(255,255,255,.8)}
+.bcard.four .bstep{background:rgba(255,255,255,.16);color:#fff}
+.bcard.four .btag{background:rgba(255,255,255,.16);color:#fff;border-color:transparent}
+.bcard.four .bgo{color:#fff}
+.bcard.four .bgo i{background:#fff;color:var(--ok)}
+.bstep{display:inline-flex;align-items:center;gap:.4rem;align-self:flex-start;
+  font-size:.74rem;font-weight:700;letter-spacing:.02em;padding:.34rem .8rem;
+  border-radius:var(--pill);background:var(--card);color:var(--ink2);border:1px solid var(--rule);
+  margin-bottom:.9rem}
+.bcard.four .bstep{border-color:transparent}
+.btitle{font-size:1.45rem;font-weight:800;letter-spacing:-.045em;line-height:1.24;margin:0 0 .6rem}
+.bcard.hero .btitle{font-size:2.1rem;margin-bottom:.9rem}
+.bdesc{font-size:.9rem;color:var(--ink2);margin:0;font-weight:500;line-height:1.62}
+.bdesc b{font-weight:700;color:var(--ink)}
+.btags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1rem}
+.btag{font-size:.76rem;font-weight:700;padding:.3rem .75rem;border-radius:var(--pill);
+  background:var(--card);border:1px solid var(--rule);color:var(--ink2)}
+.bgo{display:inline-flex;align-items:center;gap:.5rem;margin-top:auto;padding-top:1.2rem;
+  font-size:.92rem;font-weight:700;color:var(--ok)}
+.bgo i{width:1.7rem;height:1.7rem;border-radius:50%;background:var(--ok);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:.85rem}
+.brule{height:1px;background:var(--rule2);margin:1.4rem 0 1.2rem}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem .8rem}
+.stat .v{font-size:1.9rem;font-weight:800;letter-spacing:-.04em;line-height:1.1;display:block}
+.stat .k{font-size:.76rem;color:var(--muted);font-weight:500;display:block;margin-top:.15rem}
+.soon{font-size:.72rem;font-weight:700;padding:.14rem .5rem;border-radius:var(--pill);
+  background:var(--warn);color:#0b0b0b;margin-left:.4rem}
+.backb{font-family:var(--f);font-size:.85rem;font-weight:700;border:1px solid var(--rule);
+  background:var(--surface);color:var(--ink2);padding:.4rem .9rem;border-radius:var(--pill);cursor:pointer}
+.backb:hover{border-color:var(--ink);color:var(--ink)}
+@media (max-width:980px){
+  .bento{grid-template-columns:1fr;grid-template-areas:"hero" "two" "three" "four" "wide"}
+  .bcard.hero .btitle{font-size:1.75rem}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:900px){
+  .cols{grid-template-columns:1fr}
+  .left{border-right:0;border-bottom:1px solid var(--rule)}
+  .right{max-height:none;overflow:visible}
+}
+</style>
+</head>
+<body>
+<button class="fab" id="fab" onclick="gateMsg=false;go('set')"><span class="dot"></span><span>설정 필요</span></button>
+
+<div class="wrap top">
+  <h1>ERICA 수강신청 도우미 <span class="draft">시안</span></h1>
+  <div class="sizer">
+    <span class="lb">화면</span>
+    <button class="szb" data-sz="wide" aria-pressed="true">데스크탑</button>
+    <button class="szb" data-sz="narrow" aria-pressed="false">모바일</button>
+    <span class="lb" style="margin-left:.7rem">글자</span>
+    <button class="szb" data-ui="1" aria-pressed="true">보통</button>
+    <button class="szb" data-ui="1.25" aria-pressed="false">크게</button>
+    <button class="szb" data-ui="1.55" aria-pressed="false">발표용</button>
+  </div>
+</div>
+
+<div class="wrap" id="home">
+  <div class="bento">
+    <button class="bcard hero" onclick="go('pick')">
+      <span class="bstep">2026-2학기 · 메인</span>
+      <h2 class="btitle">시간표 짜기</h2>
+      <p class="bdesc">담는 만큼 남은 요건이 줄고, 시간이 겹치면 비어 있는 분반을 알려줍니다.</p>
+      <div class="brule"></div>
+      <div class="stats">
+        <div class="stat"><span class="v" id="hCnt">0</span><span class="k">담은 과목</span></div>
+        <div class="stat"><span class="v" id="hCr">0</span><span class="k">담은 학점 — 상한 20</span></div>
+        <div class="stat"><span class="v">27</span><span class="k">신청 가능 과목</span></div>
+        <div class="stat"><span class="v" id="hReq">0/4</span><span class="k">충족한 요건</span></div>
+      </div>
+      <div class="btags"><span class="btag">빈 시간 찾기</span><span class="btag">요일 비우기</span><span class="btag">대안 분반</span></div>
+      <span class="bgo">시간표 열기 <i>→</i></span>
+    </button>
+
+    <button class="bcard two" onclick="go('diag')">
+      <span class="bstep">진단</span>
+      <h2 class="btitle">남은 졸업요건</h2>
+      <p class="bdesc">포털 성적조회를 붙여넣으면 영역별로 뭐가 남았는지 바로 나옵니다.
+        <b>성적은 브라우저 안에만</b> 남습니다.</p>
+      <div class="btags" id="hReqTags"></div>
+      <span class="bgo">남은 요건 보기 <i>→</i></span>
+    </button>
+
+    <button class="bcard three" onclick="go('pick')">
+      <span class="bstep">추천<span class="soon">개발 중</span></span>
+      <h2 class="btitle">다음 학기 추천</h2>
+      <p class="bdesc">공강이냐, 계열이냐, 졸업이냐 — 고른 기준으로 묶어 줍니다.</p>
+      <div class="btags"><span class="btag">공강 우선</span><span class="btag">계열 이어 듣기</span><span class="btag">졸업 최단</span></div>
+      <span class="bgo">미리 보기 <i>→</i></span>
+    </button>
+
+    <button class="bcard four" onclick="go('pick')">
+      <span class="bstep">강의평<span class="soon" style="background:rgba(255,255,255,.22);color:#fff">준비 중</span></span>
+      <h2 class="btitle">먼저 들은 사람의 말</h2>
+      <p class="bdesc">가져온 후기가 아니라 여기서 처음 쌓이는 후기입니다. 그래서 지금은 비어 있습니다.</p>
+      <div class="btags"><span class="btag">과제량</span><span class="btag">시험 방식</span><span class="btag">출석</span></div>
+      <span class="bgo">후기 남기기 <i>→</i></span>
+    </button>
+
+    <button class="bcard wide" onclick="go('dash')">
+      <div class="wl">
+        <span class="bstep">경쟁률</span>
+        <h2 class="btitle" style="font-size:1.3rem">어느 시간이 몰리는지</h2>
+        <p class="bdesc">같은 과목이라도 분반에 따라 경쟁이 크게 갈립니다. 지난 수강신청 결과로 봅니다.</p>
+      </div>
+      <div class="wr">
+        <div class="stat"><span class="v">293</span><span class="k">분반</span></div>
+        <div class="stat"><span class="v">87</span><span class="k">정원 초과</span></div>
+        <div class="stat"><span class="v">77<small style="font-size:.9rem">%p</small></span><span class="k">최대 분반 격차</span></div>
+      </div>
+      <span class="bgo" style="padding-top:0">경쟁률 보기 <i>→</i></span>
+    </button>
+  </div>
+</div>
+
+
+
+
+<div class="wrap" id="dashwrap" hidden><div class="app">
+  <div class="hdr">
+    <button class="backb" onclick="go('home')">← 선택 창</button>
+    <span class="ttl">경쟁률</span><span class="sem">2026-2학기 수강신청 결과 · 광고홍보학과가 들을 수 있는 293개 분반</span>
+  </div>
+  <div style="padding:1.3rem" id="dashbody"></div>
+</div></div>
+
+<div class="wrap" id="setwrap" hidden><div class="app setwrap">
+  <div class="hdr">
+    <button class="backb" onclick="go('home')">← 선택 창</button>
+    <span class="ttl">설정</span><span class="sem">학사 정보</span>
+  </div>
+  <div style="padding:1.5rem" id="setbody"></div>
+</div></div>
+
+<div class="wrap" id="diagwrap" hidden><div class="app" id="app2">
+  <div class="hdr">
+    <button class="backb" onclick="go('home')">← 선택 창</button>
+    <span class="ttl">진단</span><span class="sem">광고홍보학과 3학년 · 2024학번 이후</span>
+  </div>
+  <div class="dcols">
+    <div class="dleft" id="dleft"></div>
+    <div class="dright" id="dright"></div>
+  </div>
+</div></div>
+
+<div class="wrap" id="pickwrap" hidden><div class="app" id="app">
+  <div class="hdr">
+    <button class="backb" onclick="go('home')">← 선택 창</button>
+    <span class="ttl">담기</span><span class="sem">2026-2학기</span>
+    <span class="right">
+      <span class="cnt" id="cnt"></span>
+      <span class="pips" id="pips"></span>
+    </span>
+  </div>
+  <div class="cols">
+    <div class="left" id="left"></div>
+    <div class="right" id="right"></div>
+  </div>
+</div></div>
+
+<script>
+const C=[{"id":"24444","n":"전략적커뮤니케이션","g":"전공기초","cr":3,"p":"증지수","s":[{"d":"목","a":780,"b":960}],"t":"목13-16","e":false,"pbl":false,"enr":21,"cap":35},{"id":"24445","n":"크리에이티브디자인","g":"전공기초","cr":3,"p":"김진억","s":[{"d":"목","a":900,"b":1080}],"t":"목15-18","e":false,"pbl":false,"enr":40,"cap":35},{"id":"24446","n":"홍보원론","g":"전공기초","cr":3,"p":"조영","s":[{"d":"목","a":540,"b":720}],"t":"목9-12","e":false,"pbl":false,"enr":23,"cap":40},{"id":"24447","n":"홍보원론","g":"전공기초","cr":3,"p":"김정은","s":[{"d":"금","a":780,"b":960}],"t":"금13-16","e":false,"pbl":false,"enr":37,"cap":50},{"id":"24448","n":"홍보원론","g":"전공기초","cr":3,"p":"김정은","s":[{"d":"금","a":540,"b":720}],"t":"금9-12","e":false,"pbl":false,"enr":42,"cap":40},{"id":"24256","n":"전략적커뮤니케이션","g":"전공기초","cr":3,"p":"이상록","s":[{"d":"화","a":840,"b":1020}],"t":"화14-17","e":false,"pbl":true,"enr":55,"cap":55},{"id":"24257","n":"크리에이티브디자인","g":"전공기초","cr":3,"p":"김진억","s":[{"d":"수","a":900,"b":1080}],"t":"수15-18","e":false,"pbl":false,"enr":46,"cap":35},{"id":"24260","n":"홍보원론","g":"전공기초","cr":3,"p":"최태랑","s":[{"d":"화","a":840,"b":1020}],"t":"화14-17","e":false,"pbl":false,"enr":21,"cap":40},{"id":"23016","n":"인터렉티브캠페인","g":"전공심화","cr":3,"p":"김광석","s":[{"d":"목","a":780,"b":960}],"t":"목13-16","e":false,"pbl":false,"enr":21,"cap":30},{"id":"23024","n":"광고홍보캡스톤디자인2","g":"전공심화","cr":2,"p":"김재민","s":[{"d":"수","a":660,"b":780}],"t":"수11-13","e":false,"pbl":false,"enr":37,"cap":40},{"id":"23025","n":"광고홍보캡스톤디자인2","g":"전공심화","cr":2,"p":"김재민","s":[{"d":"수","a":900,"b":1020}],"t":"수15-17","e":false,"pbl":false,"enr":32,"cap":40},{"id":"23026","n":"심화데이터애널리틱스","g":"전공심화","cr":3,"p":"마혜현","s":[{"d":"수","a":600,"b":780}],"t":"수10-13","e":false,"pbl":false,"enr":22,"cap":30},{"id":"23030","n":"스타트업비지니스프랙티컴2","g":"전공심화","cr":3,"p":"박형미","s":[{"d":"월","a":600,"b":780}],"t":"월10-13","e":false,"pbl":false,"enr":20,"cap":20},{"id":"23032","n":"퍼포먼스애드버타이징","g":"전공심화","cr":3,"p":"김민석","s":[{"d":"금","a":600,"b":780}],"t":"금10-13","e":false,"pbl":false,"enr":39,"cap":35},{"id":"23033","n":"퍼포먼스애드버타이징","g":"전공심화","cr":3,"p":"김민석","s":[{"d":"금","a":840,"b":1020}],"t":"금14-17","e":false,"pbl":false,"enr":32,"cap":35},{"id":"23036","n":"광고홍보특별주제","g":"전공심화","cr":3,"p":"김형주","s":[{"d":"수","a":900,"b":1080}],"t":"수15-18","e":false,"pbl":false,"enr":21,"cap":19},{"id":"23037","n":"광고홍보특별주제","g":"전공심화","cr":3,"p":"이경희","s":[{"d":"화","a":780,"b":960}],"t":"화13-16","e":false,"pbl":true,"enr":12,"cap":19},{"id":"23038","n":"소비자조사프로젝트","g":"전공심화","cr":3,"p":"최상학","s":[{"d":"월","a":780,"b":960}],"t":"월13-16","e":false,"pbl":true,"enr":7,"cap":20},{"id":"23039","n":"소비자조사프로젝트","g":"전공심화","cr":3,"p":"정성수","s":[{"d":"화","a":840,"b":1020}],"t":"화14-17","e":false,"pbl":false,"enr":29,"cap":30},{"id":"24458","n":"인터렉티브캠페인","g":"전공심화","cr":3,"p":"김신엽","s":[{"d":"수","a":540,"b":720}],"t":"수9-12","e":false,"pbl":false,"enr":10,"cap":30},{"id":"23014","n":"소비자심리","g":"전공핵심","cr":3,"p":"오현정","s":[{"d":"화","a":600,"b":780}],"t":"화10-13","e":true,"pbl":false,"enr":47,"cap":40},{"id":"23015","n":"소비자심리","g":"전공핵심","cr":3,"p":"김원경","s":[{"d":"금","a":840,"b":1020}],"t":"금14-17","e":true,"pbl":false,"enr":41,"cap":40},{"id":"23018","n":"이노베이션마케팅","g":"전공핵심","cr":3,"p":"최윤형","s":[{"d":"월","a":600,"b":780}],"t":"월10-13","e":false,"pbl":true,"enr":19,"cap":20},{"id":"23019","n":"이노베이션마케팅","g":"전공핵심","cr":3,"p":"최윤형","s":[{"d":"월","a":780,"b":960}],"t":"월13-16","e":false,"pbl":true,"enr":20,"cap":20},{"id":"23022","n":"AD/PR과사회","g":"전공핵심","cr":3,"p":"Thomas Britten Hove","s":[{"d":"화","a":630,"b":720},{"d":"목","a":630,"b":720}],"t":"화10:30-12 / 목10:30-12","e":true,"pbl":false,"enr":16,"cap":45},{"id":"23028","n":"창업과비즈니스모델혁신","g":"전공핵심","cr":3,"p":"최여원","s":[{"d":"월","a":780,"b":960}],"t":"월13-16","e":false,"pbl":false,"enr":34,"cap":30},{"id":"23034","n":"수용자와미디어전략","g":"전공핵심","cr":3,"p":"백혜진","s":[{"d":"수","a":600,"b":780}],"t":"수10-13","e":false,"pbl":true,"enr":25,"cap":25},{"id":"24252","n":"광고홍보연구방법론","g":"전공핵심","cr":3,"p":"이형석","s":[{"d":"화","a":540,"b":720}],"t":"화9-12","e":false,"pbl":true,"enr":37,"cap":31},{"id":"24254","n":"소셜미디어캠페인","g":"전공핵심","cr":3,"p":"심성욱","s":[{"d":"화","a":540,"b":720}],"t":"화9-12","e":false,"pbl":true,"enr":36,"cap":30},{"id":"24258","n":"설득커뮤니케이션","g":"전공핵심","cr":3,"p":"이현우","s":[{"d":"월","a":780,"b":960}],"t":"월13-16","e":false,"pbl":false,"enr":48,"cap":30},{"id":"24259","n":"설득커뮤니케이션","g":"전공핵심","cr":3,"p":"최태랑","s":[{"d":"수","a":540,"b":720}],"t":"수9-12","e":true,"pbl":true,"enr":25,"cap":30},{"id":"24450","n":"광고홍보연구방법론","g":"전공핵심","cr":3,"p":"김재민","s":[{"d":"화","a":780,"b":870},{"d":"목","a":810,"b":900}],"t":"화13-14:30 / 목13:30-15","e":true,"pbl":false,"enr":30,"cap":30},{"id":"24451","n":"설득커뮤니케이션","g":"전공핵심","cr":3,"p":"이상록","s":[{"d":"목","a":840,"b":1020}],"t":"목14-17","e":false,"pbl":true,"enr":30,"cap":30},{"id":"24452","n":"설득커뮤니케이션","g":"전공핵심","cr":3,"p":"김원경","s":[{"d":"금","a":540,"b":720}],"t":"금9-12","e":true,"pbl":false,"enr":31,"cap":30},{"id":"24453","n":"소셜미디어캠페인","g":"전공핵심","cr":3,"p":"홍다예","s":[{"d":"화","a":780,"b":960}],"t":"화13-16","e":false,"pbl":true,"enr":35,"cap":30},{"id":"24454","n":"소셜미디어캠페인","g":"전공핵심","cr":3,"p":"증지수","s":[{"d":"목","a":600,"b":780}],"t":"목10-13","e":false,"pbl":false,"enr":28,"cap":30},{"id":"24455","n":"소셜미디어캠페인","g":"전공핵심","cr":3,"p":"조은비","s":[{"d":"금","a":780,"b":960}],"t":"금13-16","e":false,"pbl":false,"enr":34,"cap":30},{"id":"24456","n":"AD/PR과사회","g":"전공핵심","cr":3,"p":"Thomas Britten Hove","s":[{"d":"화","a":720,"b":810},{"d":"목","a":720,"b":810}],"t":"화12-13:30 / 목12-13:30","e":true,"pbl":false,"enr":25,"cap":45},{"id":"24457","n":"수용자와미디어전략","g":"전공핵심","cr":3,"p":"백혜진","s":[{"d":"수","a":900,"b":1080}],"t":"수15-18","e":false,"pbl":true,"enr":23,"cap":25},{"id":"24449","n":"광고홍보연구방법론","g":"전공핵심","cr":3,"p":"한미정","s":[{"d":"목","a":840,"b":1020}],"t":"목14-17","e":false,"pbl":true,"enr":30,"cap":25},{"id":"24253","n":"광고홍보연구방법론","g":"전공핵심","cr":3,"p":"한미정","s":[{"d":"월","a":780,"b":960}],"t":"월13-16","e":false,"pbl":true,"enr":33,"cap":25},{"id":"20001","n":"AI+X:인공지능","g":"교양선택","cr":3,"p":"류호경","s":[{"d":"목","a":540,"b":660}],"t":"목9-11","e":false,"pbl":false,"enr":30,"cap":30},{"id":"20002","n":"AI+X:딥러닝","g":"교양선택","cr":3,"p":"원영준","s":[{"d":"화","a":780,"b":900}],"t":"화13-15","e":false,"pbl":false,"enr":15,"cap":30},{"id":"20003","n":"AI+X:R-Py컴퓨팅","g":"교양선택","cr":3,"p":"이정환","s":[{"d":"월","a":480,"b":660}],"t":"월8-11","e":false,"pbl":false,"enr":21,"cap":30},{"id":"20004","n":"AI+X:머신러닝","g":"교양선택","cr":3,"p":"윤종완","s":[{"d":"화","a":660,"b":780}],"t":"화11-13","e":false,"pbl":false,"enr":30,"cap":30},{"id":"20011","n":"파이썬을활용한데이터분석실무","g":"교양선택","cr":2,"p":"최기환","s":[{"d":"월","a":660,"b":780}],"t":"월11-13","e":false,"pbl":false,"enr":29,"cap":30},{"id":"20012","n":"엑셀을활용한데이터분석실무","g":"교양선택","cr":2,"p":"조상욱","s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","e":false,"pbl":false,"enr":40,"cap":40},{"id":"20013","n":"취업역량과취업실전","g":"교양선택","cr":2,"p":"김치성","s":[{"d":"화","a":540,"b":660}],"t":"화9-11","e":false,"pbl":false,"enr":40,"cap":40},{"id":"20014","n":"취업역량과취업실전","g":"교양선택","cr":2,"p":"김치성","s":[{"d":"화","a":660,"b":780}],"t":"화11-13","e":false,"pbl":false,"enr":39,"cap":40},{"id":"20015","n":"실용중국어","g":"교양선택","cr":2,"p":"임정희","s":[{"d":"화","a":540,"b":660}],"t":"화9-11","e":false,"pbl":false,"enr":39,"cap":40},{"id":"20016","n":"디자인과혁신(클러스터)","g":"교양선택","cr":2,"p":"송동원","s":[{"d":"화","a":1020,"b":1140}],"t":"화17-19","e":false,"pbl":false,"enr":40,"cap":40}];
+</script>
+<script>
+let SET={dept:null,cohort:null,year:null,loaded:false}, gateMsg=false;
+const ready=()=>!!(SET.dept&&SET.cohort&&SET.year&&SET.loaded);
+/* 남은 요건 — 광고홍보 2024학번 이후, 3학년 2학기 가정 */
+const REQ=[
+  {k:'전공핵심', need:9, unit:'학점', match:c=>c.g==='전공핵심'},
+  {k:'전공심화', need:6, unit:'학점', match:c=>c.g==='전공심화'},
+  {k:'교양선택', need:4, unit:'학점', match:c=>c.g==='교양선택'},
+  {k:'영어전용', need:1, unit:'과목', match:c=>c.e, count:true}
+];
+const CAP=20, DAYS=['월','화','수','목','금'], H0=9, H1=18;
+/* CSS의 --rowh / --head / --gut 와 같은 값. 배율이 바뀌면 다시 잰다. */
+const base=()=>parseFloat(getComputedStyle(document.documentElement).fontSize)/16;
+let ROW=30, HEAD=26, GUT=24;
+function measure(){ const k=base(); ROW=30*k; HEAD=26*k; GUT=24*k; }
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+let cart=[], filter=null, slotF=null, free=new Set(), PRE=null,
+    undoItem=null, flashMsg=null, undoT=null, flashT=null, preT=null;
+const byId=id=>C.find(c=>c.id===id);
+const inCart=id=>cart.includes(id);
+const onFreeDay=c=>c.s.some(s=>free.has(s.d));
+const hitT=(a,b)=>a.s.some(x=>b.s.some(y=>x.d===y.d&&x.a<y.b&&y.a<x.b));
+const clashWith=c=>cart.map(byId).filter(o=>o.id!==c.id&&hitT(c,o));
+const credits=()=>cart.map(byId).reduce((a,c)=>a+c.cr,0);
+function reqState(r){
+  const got=cart.map(byId).filter(r.match);
+  const p=r.count?got.length:got.reduce((a,c)=>a+c.cr,0);
+  return {p, done:p>=r.need, pct:Math.min(100,Math.round(p/r.need*100))};
+}
+const doneCount=()=>REQ.filter(r=>reqState(r).done).length;
+
+function toggle(id){
+  const c=byId(id);
+  if(inCart(id)){
+    cart=cart.filter(x=>x!==id); undoItem=id; flashMsg=null;
+    clearTimeout(undoT); undoT=setTimeout(()=>{undoItem=null;render();},6000);
+    return render();
+  }
+  if(onFreeDay(c))        return flash('free',c);
+  if(cart.map(byId).some(o=>o.n===c.n)) return flash('dup',c);
+  if(clashWith(c).length) return flash('clash',c);
+  if(credits()+c.cr>CAP)  return flash('cap',c);
+  cart.push(id); undoItem=null; flashMsg=null; render();
+}
+function undo(){ if(undoItem){ cart.push(undoItem); undoItem=null; clearTimeout(undoT); render(); } }
+function flash(kind,c){
+  if(kind==='clash'){
+    const alt=C.filter(o=>o.n===c.n&&o.id!==c.id&&!inCart(o.id)&&!clashWith(o).length&&!onFreeDay(o));
+    flashMsg = alt.length
+      ? {t:'warn',h:`<b>${esc(c.n)}</b>은(는) ${esc(clashWith(c)[0].n)}와 겹칩니다. 대신 <b>${esc(alt[0].t)}</b> 분반은 비어 있어요.`
+          +`<button class="inline" onclick="toggle('${alt[0].id}')">그걸로 담기</button>`}
+      : {t:'bad',h:`<b>${esc(c.n)}</b>은(는) ${esc(clashWith(c)[0].n)}와 겹치고, 다른 분반도 모두 겹칩니다.`};
+  } else if(kind==='dup'){
+    flashMsg={t:'warn',h:`<b>${esc(c.n)}</b>은(는) 이미 담았습니다. 같은 과목의 다른 분반은 함께 들을 수 없어요.`};
+  } else if(kind==='free'){
+    const d=c.s.map(s=>s.d).find(d=>free.has(d));
+    flashMsg={t:'warn',h:`<b>${d}요일</b>을 비우기로 했는데 이 과목은 ${d}요일입니다.`
+      +`<button class="inline ghostb" onclick="toggleDay('${d}')">${d}요일 비우기 해제</button>`};
+  } else {
+    flashMsg={t:'bad',h:`한 학기 <b>${CAP}학점</b>을 넘습니다. 다른 과목을 빼고 담아 보세요.`};
+  }
+  clearTimeout(flashT); flashT=setTimeout(()=>{flashMsg=null;render();},6000);
+  render();
+}
+function verdict(){
+  if(flashMsg) return flashMsg;
+  if(undoItem) return {t:'',h:`<b>${esc(byId(undoItem).n)}</b>을(를) 뺐습니다.`
+    +`<button class="inline ghostb" onclick="undo()">되돌리기</button>`};
+  const cr=credits();
+  if(!cart.length) return {t:'',h:'시간표 빈 칸을 누르면 그 시간에 들을 수 있는 과목만 남습니다.'};
+  const left=REQ.filter(r=>!reqState(r).done);
+  if(!left.length&&cr>=12) return {t:'good',h:`<b>이번 학기는 이걸로 충분합니다.</b> 남은 요건을 모두 채웠고 ${cr}학점입니다.`};
+  if(!left.length) return {t:'good',h:`<b>남은 요건을 다 채웠어요.</b> 다만 ${cr}학점이라 졸업학점을 생각하면 조금 더 담아도 좋습니다.`};
+  if(cr>=CAP-1) return {t:'warn',h:`<b>${cr}학점</b> — 상한 ${CAP}학점에 거의 찼습니다. ${left[0].k}이(가) ${left[0].need-reqState(left[0]).p}${left[0].unit} 남았는데 다음 학기로 넘겨야 할 수 있습니다.`};
+  const near=left.map(r=>({r,s:reqState(r)})).find(x=>x.s.p>0);
+  if(near) return {t:'warn',h:`<b>${near.r.k}</b> ${near.r.need-near.s.p}${near.r.unit}만 더 담으면 충족됩니다. 지금 ${cr}학점.`};
+  return {t:'',h:`${cr}학점 담았습니다. 남은 요건: ${left.map(r=>r.k).join(' · ')}`};
+}
+
+function ttHTML(){
+  let cells='';
+  for(let hh=H0;hh<H1;hh++){
+    cells+=`<div class="hr">${hh}</div>`;
+    DAYS.forEach(d=>{
+      const fd=free.has(d), pk=slotF&&slotF.d===d&&slotF.h===hh;
+      cells+=`<button class="cell${fd?' freeday':''}${pk?' picked':''}"
+        ${fd?'disabled':''} aria-label="${d}요일 ${hh}시" onclick="pickSlot('${d}',${hh})"></button>`;
+    });
+  }
+  const grid=`<div class="grid"><div class="hd"></div>${DAYS.map(d=>
+    `<div class="hd${free.has(d)?' free':''}">${d}</div>`).join('')}${cells}</div>`;
+  const place=(sl,extra,inner,attrs)=>{
+    const di=DAYS.indexOf(sl.d); if(di<0) return '';
+    const top=HEAD+(sl.a-H0*60)/60*ROW+1, hgt=Math.max(18,(sl.b-sl.a)/60*ROW-3);
+    return `<div class="blk${extra}" ${attrs} style="top:${top}px;height:${hgt}px;`
+      +`left:calc(${GUT}px + 7px + ${di} * (100% - ${GUT}px - 14px)/5 + 2px);`
+      +`width:calc((100% - ${GUT}px - 14px)/5 - 4px)">${inner}</div>`;
+  };
+  const tm=m=>`${Math.floor(m/60)}${m%60?':'+String(m%60).padStart(2,'0'):''}`;
+  let blocks='';
+  cart.map(byId).forEach(c=>{
+    const bad=clashWith(c).length>0;
+    c.s.forEach(sl=>{
+      const tall=(sl.b-sl.a)/60*ROW>44;
+      blocks+=place(sl, bad?' cl':'',
+        `<span>${esc(c.n)}</span>${tall?`<span class="bt">${tm(sl.a)}–${tm(sl.b)}</span>`:''}`,
+        `role="button" tabindex="0" title="${esc(c.n)} ${esc(c.t)} — 눌러서 빼기"
+         onclick="toggle('${c.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle('${c.id}')}"`);
+    });
+  });
+  if(PRE&&!inCart(PRE)){ const g=byId(PRE);
+    if(g) g.s.forEach(sl=>{ blocks+=place(sl,' ghost',`<span>${esc(g.n)}</span>`,'aria-hidden="true"'); }); }
+  return `<div class="tt">${grid}${blocks}</div>
+    <div class="tthint">빈 칸을 누르면 그 시간 과목만 · 블록을 누르면 빼기</div>`;
+}
+
+function pickSlot(d,h){ slotF=(slotF&&slotF.d===d&&slotF.h===h)?null:{d,h}; if(slotF) filter=null; render(); }
+function toggleDay(d){ free.has(d)?free.delete(d):free.add(d); flashMsg=null; render(); }
+function setF(k){ filter=(filter===k)?null:k; if(filter) slotF=null; render(); }
+function pre(id){ clearTimeout(preT); preT=setTimeout(()=>{ if(PRE!==id){PRE=id;render();} }, id?80:0); }
+
+function filtered(){
+  let v=C;
+  if(slotF){
+    const a=slotF.h*60, b=a+60;
+    v=v.filter(c=>c.s.some(s=>s.d===slotF.d&&s.a<b&&a<s.b))
+       .filter(c=>inCart(c.id)||(!clashWith(c).length&&!onFreeDay(c)));
+  } else if(filter){
+    const r=REQ.find(r=>r.k===filter);
+    v=r?v.filter(r.match):v.filter(c=>c.g===filter);
+  }
+  return v;
+}
+function listHTML(items){
+  if(!items.length) return `<div class="empty">${slotF
+    ? `<b>${slotF.d}요일 ${slotF.h}시에 넣을 수 있는 과목이 없습니다.</b>
+       <p>그 시간에 열리는 과목이 없거나, 이미 담은 과목과 겹칩니다.</p>
+       <button class="opt" onclick="slotF=null;render()">시간 조건 풀기</button>`
+    : `<b>조건에 맞는 과목이 없습니다.</b>
+       <p>이수구분 필터나 비워 둔 요일이 너무 좁습니다.</p>
+       <button class="opt" onclick="filter=null;free.clear();slotF=null;render()">조건 모두 풀기</button>`}</div>`;
+  // 같은 교과목명은 한 장으로 묶고, 분반은 시간 칩으로 고른다
+  const groups=[];
+  items.forEach(c=>{
+    let g=groups.find(g=>g.n===c.n);
+    if(!g){ g={n:c.n, g:c.g, cr:c.cr, e:c.e, pbl:c.pbl, secs:[]}; groups.push(g); }
+    g.secs.push(c);
+  });
+  return `<div class="list">${groups.map(G=>{
+    const mine=G.secs.find(c=>inCart(c.id));
+    return `<div class="item${mine?' has':''}">
+      <div class="ihead">
+        <div class="nm">${esc(G.n)}</div>
+        <div class="mt"><span>${esc(G.g)} · ${G.cr}학점</span>
+          ${G.e?'<span class="tag e">영어전용</span>':''}
+          ${G.pbl?'<span class="tag p">IC-PBL</span>':''}
+          ${G.secs.length>1?`<span class="tag">분반 ${G.secs.length}개</span>`:''}
+        </div>
+      </div>
+      <div class="secs">${G.secs.map(c=>{
+        const has=inCart(c.id), off=!has&&onFreeDay(c),
+              dup=!has&&!off&&!!mine,
+              cl=!has&&!off&&!dup&&clashWith(c).length>0;
+        const rate=c.cap?Math.round(c.enr/c.cap*100):0, hot=rate>=100;
+        const st=has?'on':off?'off':dup?'dup':cl?'cl':'';
+        const why=has?'누르면 빼기':off?'비운 요일':dup?'다른 분반을 담았습니다':cl?`${clashWith(c)[0].n}와 겹침`:'누르면 담기';
+        const rt=rate?` · 지난 수강신청 ${c.enr}/${c.cap}명 (${rate}%)`:'';
+        return `<button class="sec ${st}" title="${esc(c.p)} · ${why}${rt}"
+          onmouseenter="pre('${c.id}')" onmouseleave="pre(null)"
+          onclick="toggle('${c.id}')">${esc(c.t)}${hot?`<i class="fl">${rate}%</i>`:''}</button>`;
+      }).join('')}</div>
+    </div>`;}).join('')}</div>`;
+}
+
+function render(){
+  const cr=credits(), v=verdict();
+  document.getElementById('left').innerHTML =
+    ttHTML()
+    + `<div class="freerow"><span class="lb">비울 요일</span>${DAYS.map(d=>
+        `<button class="dayb" aria-pressed="${free.has(d)}" onclick="toggleDay('${d}')">${d}</button>`).join('')}</div>`
+    + `<div class="sumbar"><div class="n">${cr}<span style="font-size:.84rem;color:var(--muted)">/${CAP}</span></div>
+        <div class="x"><div class="lab">담은 학점</div>
+          <div class="gauge"><i class="${cr>=12?'done':''}" style="width:${Math.min(100,cr/CAP*100)}%"></i></div></div></div>`
+    + `<div class="msg ${v.t}">${v.h}</div>`
+    + (cart.length?`<div class="mine"><div class="secl">담은 과목 ${cart.length}개</div>`
+        + cart.map(byId).map(c=>`<div class="mrow"><span>${esc(c.n)}</span>
+            <span class="g">${c.cr}학점 · ${esc(c.t)}</span>
+            <button onclick="toggle('${c.id}')">빼기</button></div>`).join('')+`</div>`:'');
+
+  const chips=REQ.map(r=>{const s=reqState(r), f=Math.round(s.pct/20);
+    return `<button class="chip${s.done?' ok':' left'}" aria-pressed="${filter===r.k}" onclick="setF('${r.k}')">
+      ${r.k}<span class="dots">${'●'.repeat(f)}${'○'.repeat(5-f)}</span>
+      <span style="font-weight:400;font-size:.76rem">${s.done?'충족':`${r.need-s.p}${r.unit}`}</span></button>`;}).join('');
+  const fbar = slotF
+    ? `<div class="fbar">${slotF.d}요일 ${slotF.h}시에 넣을 수 있는 과목
+        <button class="x" onclick="pickSlot('${slotF.d}',${slotF.h})" aria-label="해제">✕</button></div>`
+    : filter ? `<div class="fbar">${esc(filter)}을(를) 채우는 과목
+        <button class="x" onclick="setF('${filter}')" aria-label="해제">✕</button></div>` : '';
+  document.getElementById('right').innerHTML =
+    `<div class="chips">${chips}</div>` + fbar
+    + (slotF||filter?'':`<div class="secl">전체 ${new Set(C.map(c=>c.n)).size}과목 · ${C.length}개 분반</div>`)
+    + listHTML(filtered())
+    + `<p class="foot-note">분반 옆 퍼센트는 <b>지난 수강신청 충원율</b>입니다. 지금 자리가 남았는지가 아니라
+        그 시간대가 얼마나 몰렸는지를 보는 값입니다.</p>`;
+
+  document.getElementById('cnt').innerHTML =
+    `${cart.length}<small>과목</small> ${cr}<small>학점</small> <small>· 요건 ${doneCount()}/${REQ.length}</small>`;
+  document.getElementById('pips').innerHTML = REQ.map(r=>`<i class="pip${reqState(r).done?' on':''}"></i>`).join('');
+}
+
+/* ── 진단: 졸업요건 이수 현황 (이수 97 / 남은 29 — 포털 결과로 검증된 값) ── */
+const GRAD=[
+  {k:'전공핵심', need:30, got:21},
+  {k:'전공심화', need:15, got:9},
+  {k:'전공 택',  need:9,  got:9},
+  {k:'교양선택', need:10, got:6},
+  {k:'산학협력', need:3,  got:3},
+  {k:'사회봉사', need:1,  got:1},
+  {k:'자유학점', need:58, got:48}
+];
+const TOTAL=126;
+const EXTRA=[
+  {k:'영어전용 강좌', need:2, got:1, unit:'개'},
+  {k:'PBL 강좌',     need:2, got:2, unit:'개'},
+  {k:'전공 IC-PBL',  need:1, got:0, unit:'개'},
+  {k:'졸업평점 2.0 이상', done:true, note:'현재 3.4'},
+  {k:'미필과목',          done:true, note:'없음'}
+];
+/* 담기 화면의 요건명 → 졸업요건 항목 (담은 학점을 미리 비춰 준다) */
+const PLANMAP={'전공핵심':'전공핵심','전공심화':'전공심화','교양선택':'교양선택'};
+function plannedFor(key){
+  return cart.map(byId).filter(c=>c.g===key).reduce((a,c)=>a+c.cr,0);
+}
+function renderDiag(){
+  const got=GRAD.reduce((a,r)=>a+r.got,0);
+  const planned=credits();
+  const leftNow=TOTAL-got, leftAfter=Math.max(0,leftNow-planned);
+  const pGot=got/TOTAL*100, pPlan=Math.min(100-pGot, planned/TOTAL*100);
+
+  document.getElementById('dleft').innerHTML=
+    `<div class="bignum">${leftNow}<small>학점 남음</small></div>
+     <p class="bigsub">졸업학점 ${TOTAL}학점 중 <b>${got}학점</b> 이수</p>
+     <div class="totg"><i class="got" style="width:${pGot}%"></i><i class="plan" style="width:${pPlan}%"></i></div>
+     <div class="legrow">
+       <span><i style="background:var(--ok)"></i>이수 ${got}</span>
+       <span><i style="background:color-mix(in srgb,var(--ok) 38%,transparent)"></i>이번 학기 담음 ${planned}</span>
+       <span><i style="background:var(--sunken);box-shadow:inset 0 0 0 1px var(--rule)"></i>남음 ${leftAfter}</span>
+     </div>
+     ${planned?`<p class="planline">지금 담은 ${planned}학점을 들으면 <b>${leftAfter}학점</b>이 남습니다.</p>`:''}
+     <div class="extra">
+       <div class="secl" style="margin-top:0">학점 외 요건</div>
+       ${EXTRA.map(x=>{
+         const done = x.done!==undefined ? x.done : x.got>=x.need;
+         const val  = x.note || (done?'충족':`${x.need-x.got}${x.unit} 남음`);
+         return `<div class="xrow${done?' done':''}">
+           <span class="mk ${done?'y':'n'}">${done?'✓':'·'}</span>
+           <span>${x.k}</span><span class="v">${val}</span></div>`;}).join('')}
+     </div>
+     <button class="cta" onclick="go('pick')">남은 요건으로 시간표 짜기 →</button>`;
+
+  document.getElementById('dright').innerHTML=
+    `<div class="secl" style="margin-top:0">영역별 이수 현황</div>
+     <div class="areas">${GRAD.map(r=>{
+       const pl=PLANMAP[r.k]?plannedFor(PLANMAP[r.k]):0;
+       const done=r.got>=r.need, doneAfter=r.got+pl>=r.need;
+       const g=Math.min(100,r.got/r.need*100), q=Math.min(100-g, pl/r.need*100);
+       const leftN=Math.max(0,r.need-r.got-pl);
+       return `<div class="arow${doneAfter?' done':''}">
+         <div class="ahead"><span class="nm">${r.k}</span>
+           <span class="st">${doneAfter?(done?'충족':'담으면 충족'):`${leftN}학점 남음`}</span></div>
+         <div class="abar"><i class="got" style="width:${g}%"></i><i class="plan" style="width:${q}%"></i></div>
+         <div class="anum">${r.need}학점 중 ${r.got}학점 이수${pl?` · 이번 학기 ${pl}학점 담음`:''}</div>
+       </div>`;}).join('')}</div>`;
+}
+
+
+/* ── 설정: 학사 정보가 없으면 다른 탭을 열지 않는다 ── */
+const DEPTS=[['광고홍보학과',1],['미디어학과',0],['문화인류학과',0],['문화콘텐츠학과',0]];
+function setDept(d){ SET.dept=d; renderSet(); }
+function setCohort(c){ SET.cohort=c; renderSet(); }
+function setYear(y){ SET.year=y; renderSet(); }
+function loadSample(){ SET.loaded=true; renderSet(); }
+function resetSet(){ SET={dept:null,cohort:null,year:null,loaded:false}; renderSet(); }
+function renderSet(){
+  document.getElementById('setbody').innerHTML=
+    (gateMsg&&!ready()?`<div class="notice"><span>⚠</span><span>학사 정보를 먼저 넣어야 나머지 화면이 열립니다. 아래 네 칸이면 끝납니다.</span></div>`:'')
+    + `<div class="sgroup"><p class="q">어느 학과인가요?</p>
+        <p class="hint">학과마다 졸업요건이 다릅니다.</p>
+        <div class="opts">${DEPTS.map(([d,on])=>
+          `<button class="opt" ${on?'':'disabled'} aria-pressed="${SET.dept===d}" onclick="setDept('${d}')">${d}${on?'':'<small>데이터 준비 중</small>'}</button>`).join('')}</div></div>`
+    + `<div class="sgroup"><p class="q">학번은요?</p>
+        <p class="hint">같은 학과라도 학번에 따라 전공심화 학점이 갈립니다.</p>
+        <div class="opts">
+          <button class="opt" aria-pressed="${SET.cohort==='new'}" onclick="setCohort('new')">2024학번 이후<small>심화 15학점</small></button>
+          <button class="opt" aria-pressed="${SET.cohort==='old'}" onclick="setCohort('old')">2023학번 이전<small>심화 18학점</small></button>
+        </div></div>`
+    + `<div class="sgroup"><p class="q">지금 몇 학년인가요?</p>
+        <p class="hint">학년에 따라 신청할 수 있는 과목이 달라집니다.</p>
+        <div class="opts">${[1,2,3,4].map(y=>
+          `<button class="opt" aria-pressed="${SET.year===y}" onclick="setYear(${y})">${y}학년</button>`).join('')}</div></div>`
+    + `<div class="sgroup"><p class="q">이수내역은 어떻게 되나요?</p>
+        <p class="hint">포털 성적조회를 복사해 붙여넣으면 됩니다. 성적은 이 브라우저 안에만 남고 어디로도 보내지 않습니다.</p>
+        <div class="pastebox${SET.loaded?' on':''}">
+          ${SET.loaded
+            ? `<div class="readout2">✓ 97학점 읽었습니다 — 2026-1학기까지</div>
+               <button class="opt" style="margin-top:.8rem" onclick="SET.loaded=false;renderSet()">다시 넣기</button>`
+            : `<p>여기에 붙여넣거나, 시연이면 예시를 불러오세요.</p>
+               <button class="opt" onclick="loadSample()">예시 이수내역 불러오기</button>`}
+        </div></div>`
+    + (ready()
+        ? `<button class="cta" style="margin-top:0" onclick="go('home')">저장하고 시작하기 →</button>`
+        : `<p class="hint" style="margin:0">네 칸을 다 채우면 시작할 수 있습니다.</p>`)
+    + (ready()?`<button class="opt" style="margin-left:.5rem" onclick="resetSet()">초기화</button>`:'');
+  const f=document.getElementById('fab');
+  if(f){ f.classList.toggle('ok',ready()); f.lastElementChild.textContent = ready()?'설정':'설정 필요'; }
+}
+
+
+/* ── 경쟁률 대시보드 ── 지난 수강신청의 수강/정원으로 본 수요 ── */
+const DASH=[{"n":"학술영어","g":"교양필수","e":21,"c":21,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":true},{"n":"학술영어","g":"교양필수","e":21,"c":21,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":true},{"n":"학술영어","g":"교양필수","e":21,"c":21,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":true},{"n":"학술영어","g":"교양필수","e":21,"c":21,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":true},{"n":"학술영어","g":"교양필수","e":21,"c":21,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":true},{"n":"학술영어","g":"교양필수","e":21,"c":21,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":true},{"n":"학술영어","g":"교양필수","e":19,"c":21,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":true},{"n":"ESG와SDGs이해","g":"교양필수","e":40,"c":40,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":true},{"n":"ESG와SDGs이해","g":"교양필수","e":40,"c":40,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":true},{"n":"ESG와SDGs이해","g":"교양필수","e":40,"c":40,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":true},{"n":"전략적커뮤니케이션","g":"전공기초","e":21,"c":35,"s":[{"d":"목","a":780,"b":960}],"t":"목13-16","mine":true},{"n":"크리에이티브디자인","g":"전공기초","e":40,"c":35,"s":[{"d":"목","a":900,"b":1080}],"t":"목15-18","mine":true},{"n":"홍보원론","g":"전공기초","e":23,"c":40,"s":[{"d":"목","a":540,"b":720}],"t":"목9-12","mine":true},{"n":"홍보원론","g":"전공기초","e":37,"c":50,"s":[{"d":"금","a":780,"b":960}],"t":"금13-16","mine":true},{"n":"홍보원론","g":"전공기초","e":42,"c":40,"s":[{"d":"금","a":540,"b":720}],"t":"금9-12","mine":true},{"n":"소비자심리","g":"전공핵심","e":47,"c":40,"s":[{"d":"화","a":600,"b":780}],"t":"화10-13","mine":true},{"n":"소비자심리","g":"전공핵심","e":41,"c":40,"s":[{"d":"금","a":840,"b":1020}],"t":"금14-17","mine":true},{"n":"인터렉티브캠페인","g":"전공심화","e":21,"c":30,"s":[{"d":"목","a":780,"b":960}],"t":"목13-16","mine":true},{"n":"이노베이션마케팅","g":"전공핵심","e":19,"c":20,"s":[{"d":"월","a":600,"b":780}],"t":"월10-13","mine":true},{"n":"이노베이션마케팅","g":"전공핵심","e":20,"c":20,"s":[{"d":"월","a":780,"b":960}],"t":"월13-16","mine":true},{"n":"AD/PR과사회","g":"전공핵심","e":16,"c":45,"s":[{"d":"화","a":630,"b":720},{"d":"목","a":630,"b":720}],"t":"화10:30-12 / 목10:30-12","mine":true},{"n":"광고홍보캡스톤디자인2","g":"전공심화","e":37,"c":40,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":true},{"n":"광고홍보캡스톤디자인2","g":"전공심화","e":32,"c":40,"s":[{"d":"수","a":900,"b":1020}],"t":"수15-17","mine":true},{"n":"심화데이터애널리틱스","g":"전공심화","e":22,"c":30,"s":[{"d":"수","a":600,"b":780}],"t":"수10-13","mine":true},{"n":"창업과비즈니스모델혁신","g":"전공핵심","e":34,"c":30,"s":[{"d":"월","a":780,"b":960}],"t":"월13-16","mine":true},{"n":"스타트업비지니스프랙티컴2","g":"전공심화","e":20,"c":20,"s":[{"d":"월","a":600,"b":780}],"t":"월10-13","mine":true},{"n":"퍼포먼스애드버타이징","g":"전공심화","e":39,"c":35,"s":[{"d":"금","a":600,"b":780}],"t":"금10-13","mine":true},{"n":"퍼포먼스애드버타이징","g":"전공심화","e":32,"c":35,"s":[{"d":"금","a":840,"b":1020}],"t":"금14-17","mine":true},{"n":"수용자와미디어전략","g":"전공핵심","e":25,"c":25,"s":[{"d":"수","a":600,"b":780}],"t":"수10-13","mine":true},{"n":"광고홍보특별주제","g":"전공심화","e":21,"c":19,"s":[{"d":"수","a":900,"b":1080}],"t":"수15-18","mine":true},{"n":"광고홍보특별주제","g":"전공심화","e":12,"c":19,"s":[{"d":"화","a":780,"b":960}],"t":"화13-16","mine":true},{"n":"소비자조사프로젝트","g":"전공심화","e":7,"c":20,"s":[{"d":"월","a":780,"b":960}],"t":"월13-16","mine":true},{"n":"소비자조사프로젝트","g":"전공심화","e":29,"c":30,"s":[{"d":"화","a":840,"b":1020}],"t":"화14-17","mine":true},{"n":"광고홍보연구방법론","g":"전공핵심","e":37,"c":31,"s":[{"d":"화","a":540,"b":720}],"t":"화9-12","mine":true},{"n":"소셜미디어캠페인","g":"전공핵심","e":36,"c":30,"s":[{"d":"화","a":540,"b":720}],"t":"화9-12","mine":true},{"n":"전략적커뮤니케이션","g":"전공기초","e":55,"c":55,"s":[{"d":"화","a":840,"b":1020}],"t":"화14-17","mine":true},{"n":"크리에이티브디자인","g":"전공기초","e":46,"c":35,"s":[{"d":"수","a":900,"b":1080}],"t":"수15-18","mine":true},{"n":"설득커뮤니케이션","g":"전공핵심","e":48,"c":30,"s":[{"d":"월","a":780,"b":960}],"t":"월13-16","mine":true},{"n":"설득커뮤니케이션","g":"전공핵심","e":25,"c":30,"s":[{"d":"수","a":540,"b":720}],"t":"수9-12","mine":true},{"n":"홍보원론","g":"전공기초","e":21,"c":40,"s":[{"d":"화","a":840,"b":1020}],"t":"화14-17","mine":true},{"n":"파이썬과데이터분석","g":"교양필수","e":27,"c":40,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":true},{"n":"광고홍보연구방법론","g":"전공핵심","e":30,"c":30,"s":[{"d":"화","a":780,"b":870},{"d":"목","a":810,"b":900}],"t":"화13-14:30 / 목13:30-15","mine":true},{"n":"설득커뮤니케이션","g":"전공핵심","e":30,"c":30,"s":[{"d":"목","a":840,"b":1020}],"t":"목14-17","mine":true},{"n":"설득커뮤니케이션","g":"전공핵심","e":31,"c":30,"s":[{"d":"금","a":540,"b":720}],"t":"금9-12","mine":true},{"n":"소셜미디어캠페인","g":"전공핵심","e":35,"c":30,"s":[{"d":"화","a":780,"b":960}],"t":"화13-16","mine":true},{"n":"소셜미디어캠페인","g":"전공핵심","e":28,"c":30,"s":[{"d":"목","a":600,"b":780}],"t":"목10-13","mine":true},{"n":"소셜미디어캠페인","g":"전공핵심","e":34,"c":30,"s":[{"d":"금","a":780,"b":960}],"t":"금13-16","mine":true},{"n":"AD/PR과사회","g":"전공핵심","e":25,"c":45,"s":[{"d":"화","a":720,"b":810},{"d":"목","a":720,"b":810}],"t":"화12-13:30 / 목12-13:30","mine":true},{"n":"수용자와미디어전략","g":"전공핵심","e":23,"c":25,"s":[{"d":"수","a":900,"b":1080}],"t":"수15-18","mine":true},{"n":"인터렉티브캠페인","g":"전공심화","e":10,"c":30,"s":[{"d":"수","a":540,"b":720}],"t":"수9-12","mine":true},{"n":"파이썬과데이터분석","g":"교양필수","e":40,"c":40,"s":[{"d":"수","a":540,"b":660}],"t":"수9-11","mine":true},{"n":"광고홍보연구방법론","g":"전공핵심","e":30,"c":25,"s":[{"d":"목","a":840,"b":1020}],"t":"목14-17","mine":true},{"n":"광고홍보연구방법론","g":"전공핵심","e":33,"c":25,"s":[{"d":"월","a":780,"b":960}],"t":"월13-16","mine":true},{"n":"AI+X:인공지능","g":"교양선택","e":30,"c":30,"s":[{"d":"목","a":540,"b":660}],"t":"목9-11","mine":false},{"n":"AI+X:딥러닝","g":"교양선택","e":15,"c":30,"s":[{"d":"화","a":780,"b":900}],"t":"화13-15","mine":false},{"n":"AI+X:R-Py컴퓨팅","g":"교양선택","e":21,"c":30,"s":[{"d":"월","a":480,"b":660}],"t":"월8-11","mine":false},{"n":"AI+X:머신러닝","g":"교양선택","e":30,"c":30,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"파이썬을활용한데이터분석실무","g":"교양선택","e":29,"c":30,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":false},{"n":"엑셀을활용한데이터분석실무","g":"교양선택","e":40,"c":40,"s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","mine":false},{"n":"취업역량과취업실전","g":"교양선택","e":40,"c":40,"s":[{"d":"화","a":540,"b":660}],"t":"화9-11","mine":false},{"n":"취업역량과취업실전","g":"교양선택","e":39,"c":40,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"실용중국어","g":"교양선택","e":39,"c":40,"s":[{"d":"화","a":540,"b":660}],"t":"화9-11","mine":false},{"n":"디자인과혁신(클러스터)","g":"교양선택","e":40,"c":40,"s":[{"d":"화","a":1020,"b":1140}],"t":"화17-19","mine":false},{"n":"품질인증및시험·평가기술의이해(클러스터)","g":"교양선택","e":40,"c":40,"s":[{"d":"월","a":1020,"b":1140}],"t":"월17-19","mine":false},{"n":"글로벌리더트레이닝2(클러스터)","g":"교양선택","e":40,"c":41,"s":[{"d":"목","a":660,"b":780}],"t":"목11-13","mine":false},{"n":"디자인싱킹(클러스터)","g":"교양선택","e":37,"c":40,"s":[{"d":"화","a":1020,"b":1140}],"t":"화17-19","mine":false},{"n":"IT경영및사업화(클러스터)","g":"교양선택","e":39,"c":40,"s":[{"d":"월","a":1020,"b":1140}],"t":"월17-19","mine":false},{"n":"창의구현3D모델링기초실습(클러스터)","g":"교양선택","e":38,"c":40,"s":[{"d":"화","a":1020,"b":1140}],"t":"화17-19","mine":false},{"n":"비주얼스토리텔링(클러스터)","g":"교양선택","e":44,"c":40,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"그림으로배우는컴퓨터구조기초(클러스터)","g":"교양선택","e":28,"c":30,"s":[{"d":"목","a":660,"b":780}],"t":"목11-13","mine":false},{"n":"전산통계학기초(클러스터)","g":"교양선택","e":21,"c":30,"s":[{"d":"목","a":900,"b":1020}],"t":"목15-17","mine":false},{"n":"프로그램설계방법론기초(클러스터)","g":"교양선택","e":28,"c":30,"s":[{"d":"수","a":540,"b":660}],"t":"수9-11","mine":false},{"n":"리빙랩과디자인싱킹(클러스터)","g":"교양선택","e":40,"c":40,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"프로젝트관리입문(CPMS)(클러스터)","g":"교양선택","e":32,"c":30,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"프로젝트관리입문(CPMS)(클러스터)","g":"교양선택","e":36,"c":30,"s":[{"d":"화","a":780,"b":900}],"t":"화13-15","mine":false},{"n":"창의성과아이디어발상법(클러스터)","g":"교양선택","e":36,"c":40,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"그로스해킹을적용한디지털마케팅(클러스터)","g":"교양선택","e":53,"c":55,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"GPT로만든미래이야기","g":"교양선택","e":35,"c":40,"s":[{"d":"수","a":600,"b":780}],"t":"수10-13","mine":false},{"n":"현대음악의이해","g":"교양선택","e":80,"c":80,"s":[{"d":"화","a":780,"b":900}],"t":"화13-15","mine":false},{"n":"교양타악실기","g":"교양선택","e":40,"c":40,"s":[{"d":"목","a":780,"b":900}],"t":"목13-15","mine":false},{"n":"법의이해","g":"교양선택","e":144,"c":150,"s":[{"d":"목","a":780,"b":900}],"t":"목13-15","mine":false},{"n":"생활속의물리학","g":"교양선택","e":57,"c":80,"s":[{"d":"월","a":840,"b":1020}],"t":"월14-17","mine":false},{"n":"지구의역사","g":"교양선택","e":78,"c":80,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"아카데믹글쓰기","g":"교양필수","e":30,"c":30,"s":[{"d":"수","a":1020,"b":1140}],"t":"수17-19","mine":false},{"n":"수화실기","g":"교양선택","e":39,"c":40,"s":[{"d":"화","a":540,"b":660}],"t":"화9-11","mine":false},{"n":"교양댄스스포츠","g":"교양선택","e":39,"c":40,"s":[{"d":"월","a":540,"b":660}],"t":"월9-11","mine":false},{"n":"교양댄스스포츠","g":"교양선택","e":40,"c":40,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"교양골프","g":"교양선택","e":29,"c":30,"s":[{"d":"화","a":540,"b":660}],"t":"화9-11","mine":false},{"n":"교양골프","g":"교양선택","e":30,"c":30,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"교양구급법","g":"교양선택","e":40,"c":40,"s":[{"d":"월","a":540,"b":660}],"t":"월9-11","mine":false},{"n":"교양구급법","g":"교양선택","e":39,"c":40,"s":[{"d":"월","a":780,"b":900}],"t":"월13-15","mine":false},{"n":"교양축구","g":"교양선택","e":29,"c":30,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"교양축구","g":"교양선택","e":30,"c":30,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"교양축구","g":"교양선택","e":29,"c":30,"s":[{"d":"화","a":780,"b":900}],"t":"화13-15","mine":false},{"n":"교양테니스","g":"교양선택","e":30,"c":30,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"교양테니스","g":"교양선택","e":30,"c":30,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":false},{"n":"교양테니스","g":"교양선택","e":29,"c":30,"s":[{"d":"금","a":780,"b":900}],"t":"금13-15","mine":false},{"n":"교양배드민턴","g":"교양선택","e":30,"c":30,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"교양배드민턴","g":"교양선택","e":30,"c":30,"s":[{"d":"화","a":780,"b":900}],"t":"화13-15","mine":false},{"n":"디자인과생활","g":"교양선택","e":77,"c":80,"s":[{"d":"목","a":900,"b":1020}],"t":"목15-17","mine":false},{"n":"고전음악의이해","g":"교양선택","e":75,"c":80,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"10만원창업프로젝트","g":"교양선택","e":39,"c":40,"s":[{"d":"화","a":840,"b":960}],"t":"화14-16","mine":false},{"n":"기업분석과취창업전략","g":"교양선택","e":77,"c":80,"s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","mine":false},{"n":"스타트업초청강연","g":"교양선택","e":359,"c":360,"s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","mine":false},{"n":"창업경영시뮬레이션","g":"교양선택","e":29,"c":30,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"창업경영시뮬레이션","g":"교양선택","e":28,"c":30,"s":[{"d":"화","a":840,"b":960}],"t":"화14-16","mine":false},{"n":"4차산업혁명과고전읽기","g":"교양선택","e":30,"c":40,"s":[{"d":"목","a":780,"b":900}],"t":"목13-15","mine":false},{"n":"보이스앙상블","g":"교양선택","e":41,"c":41,"s":[{"d":"목","a":780,"b":900}],"t":"목13-15","mine":false},{"n":"스무살의행복한나의인생디자인","g":"교양선택","e":40,"c":40,"s":[{"d":"월","a":900,"b":1020}],"t":"월15-17","mine":false},{"n":"동양의눈으로본문명교류사","g":"교양선택","e":69,"c":80,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"사랑의역사:사랑에관한철학적성찰","g":"교양선택","e":35,"c":40,"s":[{"d":"월","a":900,"b":1020}],"t":"월15-17","mine":false},{"n":"파이썬을활용한데이터분석기초(클러스터)","g":"교양선택","e":40,"c":40,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":false},{"n":"디지털혁신과프로그래밍의이해(클러스터)","g":"교양선택","e":39,"c":40,"s":[{"d":"목","a":960,"b":1080}],"t":"목16-18","mine":false},{"n":"학술영어1:통합","g":"교양선택","e":37,"c":40,"s":[{"d":"목","a":660,"b":780}],"t":"목11-13","mine":false},{"n":"학술영어2:글쓰기","g":"교양선택","e":18,"c":40,"s":[{"d":"화","a":540,"b":660}],"t":"화9-11","mine":false},{"n":"초급중국어","g":"교양선택","e":20,"c":40,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"고급영어회화","g":"교양선택","e":39,"c":40,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"한국근현대사","g":"교양선택","e":39,"c":40,"s":[{"d":"화","a":780,"b":900}],"t":"화13-15","mine":false},{"n":"한국의전통문화","g":"교양선택","e":40,"c":40,"s":[{"d":"월","a":900,"b":1020}],"t":"월15-17","mine":false},{"n":"한국의전통문화","g":"교양선택","e":39,"c":40,"s":[{"d":"금","a":900,"b":1020}],"t":"금15-17","mine":false},{"n":"문화와디자인","g":"교양선택","e":77,"c":80,"s":[{"d":"목","a":660,"b":780}],"t":"목11-13","mine":false},{"n":"세금과생활","g":"교양선택","e":41,"c":80,"s":[{"d":"목","a":1140,"b":1320}],"t":"목19-22","mine":false},{"n":"고급컴퓨터활용","g":"교양선택","e":29,"c":30,"s":[{"d":"화","a":780,"b":900}],"t":"화13-15","mine":false},{"n":"고급컴퓨터활용","g":"교양선택","e":30,"c":30,"s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","mine":false},{"n":"컴퓨터그래픽응용","g":"교양선택","e":23,"c":30,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"컴퓨터그래픽응용","g":"교양선택","e":21,"c":30,"s":[{"d":"화","a":780,"b":900}],"t":"화13-15","mine":false},{"n":"AI를활용한글로벌이슈와SDGs","g":"교양선택","e":38,"c":40,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"과학기술의철학적이해","g":"교양선택","e":77,"c":80,"s":[{"d":"월","a":780,"b":900}],"t":"월13-15","mine":false},{"n":"생활무용","g":"교양선택","e":39,"c":40,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":false},{"n":"소설과현대사회","g":"교양선택","e":38,"c":40,"s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","mine":false},{"n":"한류와한국문화","g":"교양선택","e":78,"c":80,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"생활속의화학","g":"교양선택","e":39,"c":40,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"모바일프로그래밍입문","g":"교양선택","e":15,"c":30,"s":[{"d":"월","a":780,"b":900}],"t":"월13-15","mine":false},{"n":"웹퍼블리싱","g":"교양선택","e":30,"c":30,"s":[{"d":"수","a":900,"b":1020}],"t":"수15-17","mine":false},{"n":"컴퓨팅과데이터처리","g":"교양선택","e":23,"c":25,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":false},{"n":"독립영화의이해","g":"교양선택","e":100,"c":100,"s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","mine":false},{"n":"데이터분석과시각화","g":"교양선택","e":16,"c":25,"s":[{"d":"목","a":780,"b":900}],"t":"목13-15","mine":false},{"n":"안드로이드앱프로그래밍","g":"교양선택","e":18,"c":30,"s":[{"d":"목","a":780,"b":900}],"t":"목13-15","mine":false},{"n":"웹서비스구축","g":"교양선택","e":21,"c":30,"s":[{"d":"월","a":900,"b":1020}],"t":"월15-17","mine":false},{"n":"블록체인:혁명의시작(클러스터)","g":"교양선택","e":60,"c":60,"s":[{"d":"금","a":660,"b":780}],"t":"금11-13","mine":false},{"n":"레고세트를이용한창의설계","g":"교양선택","e":35,"c":40,"s":[{"d":"화","a":900,"b":1080}],"t":"화15-18","mine":false},{"n":"영어로만나는YouTube","g":"교양선택","e":39,"c":40,"s":[{"d":"금","a":540,"b":660}],"t":"금9-11","mine":false},{"n":"K-POP댄스","g":"교양선택","e":38,"c":40,"s":[{"d":"월","a":780,"b":900}],"t":"월13-15","mine":false},{"n":"환경과우리들의생활","g":"교양선택","e":111,"c":120,"s":[{"d":"목","a":900,"b":1020}],"t":"목15-17","mine":false},{"n":"미생물과인간","g":"교양선택","e":72,"c":80,"s":[{"d":"수","a":900,"b":1020}],"t":"수15-17","mine":false},{"n":"영화속디자인이야기","g":"교양선택","e":77,"c":80,"s":[{"d":"목","a":780,"b":900}],"t":"목13-15","mine":false},{"n":"나를찾는미술치료","g":"교양선택","e":38,"c":40,"s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","mine":false},{"n":"교양요가및필라테스","g":"교양선택","e":38,"c":40,"s":[{"d":"화","a":540,"b":660}],"t":"화9-11","mine":false},{"n":"교양요가및필라테스","g":"교양선택","e":37,"c":40,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"교양태권도및호신술","g":"교양선택","e":40,"c":40,"s":[{"d":"금","a":660,"b":780}],"t":"금11-13","mine":false},{"n":"나를찾아가는여행","g":"교양선택","e":37,"c":40,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"동서양철학과인권의식","g":"교양선택","e":30,"c":80,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"생활속의인권","g":"교양선택","e":150,"c":150,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"뉴스영어따라잡기","g":"교양선택","e":34,"c":40,"s":[{"d":"금","a":780,"b":900}],"t":"금13-15","mine":false},{"n":"빅데이터이해와분석(ADsP)(클러스터)","g":"교양선택","e":35,"c":40,"s":[{"d":"화","a":540,"b":660}],"t":"화9-11","mine":false},{"n":"TED_Talks_영어","g":"교양선택","e":39,"c":40,"s":[{"d":"금","a":660,"b":780}],"t":"금11-13","mine":false},{"n":"IoT이해와활용","g":"교양선택","e":25,"c":30,"s":[{"d":"수","a":900,"b":1020}],"t":"수15-17","mine":false},{"n":"K-POP비즈니스의세계","g":"교양선택","e":79,"c":80,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"가치관과정의","g":"교양선택","e":75,"c":80,"s":[{"d":"금","a":660,"b":780}],"t":"금11-13","mine":false},{"n":"AI를활용한고급영어작문","g":"교양선택","e":38,"c":40,"s":[{"d":"금","a":780,"b":900}],"t":"금13-15","mine":false},{"n":"관계의기술","g":"교양선택","e":37,"c":40,"s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","mine":false},{"n":"교양스페인어","g":"교양선택","e":38,"c":40,"s":[{"d":"목","a":780,"b":900}],"t":"목13-15","mine":false},{"n":"교양일본어","g":"교양선택","e":39,"c":40,"s":[{"d":"금","a":540,"b":660}],"t":"금9-11","mine":false},{"n":"교양크로스컨트리","g":"교양선택","e":39,"c":40,"s":[{"d":"수","a":540,"b":660}],"t":"수9-11","mine":false},{"n":"교양크로스컨트리","g":"교양선택","e":40,"c":40,"s":[{"d":"금","a":660,"b":780}],"t":"금11-13","mine":false},{"n":"교양태권도","g":"교양선택","e":40,"c":40,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":false},{"n":"교양프랑스어","g":"교양선택","e":39,"c":40,"s":[{"d":"금","a":780,"b":900}],"t":"금13-15","mine":false},{"n":"교양피트니스트레이닝","g":"교양선택","e":39,"c":40,"s":[{"d":"금","a":540,"b":660}],"t":"금9-11","mine":false},{"n":"교양피트니스트레이닝","g":"교양선택","e":39,"c":40,"s":[{"d":"화","a":540,"b":660}],"t":"화9-11","mine":false},{"n":"글로벌엔터테인먼트의세계","g":"교양선택","e":79,"c":80,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"논리적으로생각하는능력","g":"교양선택","e":63,"c":80,"s":[{"d":"금","a":540,"b":660}],"t":"금9-11","mine":false},{"n":"뉴스바로보기","g":"교양선택","e":31,"c":40,"s":[{"d":"금","a":540,"b":660}],"t":"금9-11","mine":false},{"n":"다문화와열린사회","g":"교양선택","e":79,"c":80,"s":[{"d":"화","a":780,"b":900}],"t":"화13-15","mine":false},{"n":"대학생을위한실용금융","g":"교양선택","e":80,"c":80,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"동양근현대사","g":"교양선택","e":65,"c":80,"s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","mine":false},{"n":"동양사상의이해","g":"교양선택","e":75,"c":80,"s":[{"d":"화","a":780,"b":900}],"t":"화13-15","mine":false},{"n":"디지털미디어리터러시","g":"교양선택","e":39,"c":40,"s":[{"d":"화","a":780,"b":900}],"t":"화13-15","mine":false},{"n":"문명과건설환경","g":"교양선택","e":62,"c":80,"s":[{"d":"금","a":660,"b":780}],"t":"금11-13","mine":false},{"n":"뮤지컬의세계","g":"교양선택","e":77,"c":80,"s":[{"d":"화","a":780,"b":900}],"t":"화13-15","mine":false},{"n":"미술로시대읽기","g":"교양선택","e":79,"c":80,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":false},{"n":"미학입문","g":"교양선택","e":72,"c":80,"s":[{"d":"금","a":780,"b":900}],"t":"금13-15","mine":false},{"n":"불확실한세상과통계학","g":"교양선택","e":59,"c":60,"s":[{"d":"수","a":990,"b":1110}],"t":"수16:30-18:30","mine":false},{"n":"서양근현대사","g":"교양선택","e":79,"c":80,"s":[{"d":"목","a":660,"b":780}],"t":"목11-13","mine":false},{"n":"서양사상의이해","g":"교양선택","e":74,"c":80,"s":[{"d":"월","a":900,"b":1020}],"t":"월15-17","mine":false},{"n":"스페인사회와문화","g":"교양선택","e":76,"c":80,"s":[{"d":"목","a":660,"b":780}],"t":"목11-13","mine":false},{"n":"시민의식과불평등","g":"교양선택","e":77,"c":80,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"실용스페인어","g":"교양선택","e":37,"c":40,"s":[{"d":"목","a":900,"b":1020}],"t":"목15-17","mine":false},{"n":"애니메이션세미나","g":"교양선택","e":100,"c":100,"s":[{"d":"월","a":900,"b":1020}],"t":"월15-17","mine":false},{"n":"연극의세계","g":"교양선택","e":53,"c":80,"s":[{"d":"목","a":660,"b":780}],"t":"목11-13","mine":false},{"n":"영문법의이해","g":"교양선택","e":34,"c":40,"s":[{"d":"금","a":900,"b":1020}],"t":"금15-17","mine":false},{"n":"영미사회와문화","g":"교양선택","e":40,"c":40,"s":[{"d":"금","a":660,"b":780}],"t":"금11-13","mine":false},{"n":"영화속심리학","g":"교양선택","e":77,"c":80,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":false},{"n":"영화의세계","g":"교양선택","e":78,"c":80,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":false},{"n":"운동과웰니스","g":"교양선택","e":39,"c":40,"s":[{"d":"화","a":720,"b":840}],"t":"화12-14","mine":false},{"n":"운동과웰니스","g":"교양선택","e":40,"c":40,"s":[{"d":"월","a":540,"b":660}],"t":"월9-11","mine":false},{"n":"웹툰의세계","g":"교양선택","e":38,"c":80,"s":[{"d":"금","a":900,"b":1020}],"t":"금15-17","mine":false},{"n":"웹툰의세계","g":"교양선택","e":77,"c":80,"s":[{"d":"금","a":900,"b":1020}],"t":"금15-17","mine":false},{"n":"장르문학의역사","g":"교양선택","e":78,"c":80,"s":[{"d":"월","a":780,"b":900}],"t":"월13-15","mine":false},{"n":"전쟁으로읽는유럽사","g":"교양선택","e":80,"c":80,"s":[{"d":"목","a":780,"b":900}],"t":"목13-15","mine":false},{"n":"정신건강과현대사회","g":"교양선택","e":77,"c":80,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"중국사회와문화","g":"교양선택","e":80,"c":80,"s":[{"d":"목","a":900,"b":1020}],"t":"목15-17","mine":false},{"n":"철학입문","g":"교양선택","e":61,"c":80,"s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","mine":false},{"n":"크리에이티브비디오","g":"교양선택","e":28,"c":30,"s":[{"d":"목","a":900,"b":1020}],"t":"목15-17","mine":false},{"n":"프랑스사회와문화","g":"교양선택","e":48,"c":80,"s":[{"d":"목","a":660,"b":780}],"t":"목11-13","mine":false},{"n":"프레젠테이션전략","g":"교양선택","e":30,"c":40,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"한국의문화와역사","g":"교양선택","e":37,"c":40,"s":[{"d":"목","a":780,"b":900}],"t":"목13-15","mine":false},{"n":"한국의문화와역사","g":"교양선택","e":36,"c":40,"s":[{"d":"목","a":900,"b":1020}],"t":"목15-17","mine":false},{"n":"현대사회와페미니즘","g":"교양선택","e":77,"c":80,"s":[{"d":"월","a":900,"b":1020}],"t":"월15-17","mine":false},{"n":"교양심화프랑스어","g":"교양선택","e":25,"c":40,"s":[{"d":"금","a":900,"b":1020}],"t":"금15-17","mine":false},{"n":"그림책테라피","g":"교양선택","e":29,"c":30,"s":[{"d":"수","a":540,"b":660}],"t":"수9-11","mine":false},{"n":"그림책테라피","g":"교양선택","e":29,"c":30,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"기억력과학습전략","g":"교양선택","e":20,"c":40,"s":[{"d":"금","a":780,"b":900}],"t":"금13-15","mine":false},{"n":"문화와노동인권","g":"교양선택","e":149,"c":150,"s":[{"d":"목","a":660,"b":780}],"t":"목11-13","mine":false},{"n":"사회적소수자와인권","g":"교양선택","e":39,"c":40,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":false},{"n":"치료음악의세계","g":"교양선택","e":35,"c":40,"s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","mine":false},{"n":"국제분쟁과미디어","g":"교양선택","e":69,"c":80,"s":[{"d":"금","a":780,"b":900}],"t":"금13-15","mine":false},{"n":"디자인으로생각뒤집기","g":"교양선택","e":76,"c":80,"s":[{"d":"금","a":660,"b":780}],"t":"금11-13","mine":false},{"n":"인류사회를변화시킨패션의힘","g":"교양선택","e":78,"c":80,"s":[{"d":"금","a":900,"b":1020}],"t":"금15-17","mine":false},{"n":"크리에이티브제안서기획","g":"교양선택","e":32,"c":40,"s":[{"d":"화","a":540,"b":660}],"t":"화9-11","mine":false},{"n":"현대사회의비판적이해","g":"교양선택","e":38,"c":80,"s":[{"d":"수","a":540,"b":660}],"t":"수9-11","mine":false},{"n":"인공지능과머신러닝의이해","g":"교양선택","e":30,"c":30,"s":[{"d":"수","a":900,"b":1020}],"t":"수15-17","mine":false},{"n":"인공지능기초프로그래밍","g":"교양선택","e":29,"c":30,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"빅데이터와머신러닝","g":"교양선택","e":29,"c":30,"s":[{"d":"목","a":780,"b":900}],"t":"목13-15","mine":false},{"n":"엑셀을이용한데이터분석","g":"교양선택","e":28,"c":30,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"생활속의로봇디자인","g":"교양선택","e":29,"c":40,"s":[{"d":"화","a":780,"b":960}],"t":"화13-16","mine":false},{"n":"호모에티쿠스로살아가기","g":"교양선택","e":74,"c":80,"s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","mine":false},{"n":"비이공계전공자를위한반도체제조공정","g":"교양선택","e":65,"c":80,"s":[{"d":"월","a":960,"b":1020}],"t":"월16-17","mine":false},{"n":"생명의비밀","g":"교양선택","e":77,"c":80,"s":[{"d":"목","a":540,"b":660}],"t":"목9-11","mine":false},{"n":"시가필요한시간","g":"교양선택","e":40,"c":40,"s":[{"d":"목","a":660,"b":780}],"t":"목11-13","mine":false},{"n":"교양알렉산더테크닉과자세건강","g":"교양선택","e":30,"c":30,"s":[{"d":"목","a":660,"b":780}],"t":"목11-13","mine":false},{"n":"지능형로봇프로그래밍의이해","g":"교양선택","e":18,"c":30,"s":[{"d":"월","a":900,"b":1020}],"t":"월15-17","mine":false},{"n":"감성품은로봇이야기","g":"교양선택","e":30,"c":40,"s":[{"d":"화","a":600,"b":780}],"t":"화10-13","mine":false},{"n":"가상확장현실의이해","g":"교양선택","e":28,"c":30,"s":[{"d":"월","a":900,"b":1020}],"t":"월15-17","mine":false},{"n":"4차산업혁명기술과물리학","g":"교양선택","e":32,"c":80,"s":[{"d":"금","a":780,"b":900}],"t":"금13-15","mine":false},{"n":"반도체와우리생활","g":"교양선택","e":34,"c":40,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":false},{"n":"ERICA뉴노멀프로젝트","g":"교양선택","e":39,"c":40,"s":[{"d":"금","a":900,"b":1020}],"t":"금15-17","mine":false},{"n":"웹프레임워크개발","g":"교양선택","e":28,"c":30,"s":[{"d":"월","a":900,"b":1020}],"t":"월15-17","mine":false},{"n":"전염병클리닉","g":"교양선택","e":95,"c":100,"s":[{"d":"월","a":900,"b":1020}],"t":"월15-17","mine":false},{"n":"로봇생각과표현","g":"교양선택","e":19,"c":20,"s":[{"d":"수","a":540,"b":720}],"t":"수9-12","mine":false},{"n":"공공언어와미디어리터러시","g":"교양선택","e":14,"c":40,"s":[{"d":"월","a":900,"b":960}],"t":"월15-16","mine":false},{"n":"퍼스널브랜딩","g":"교양선택","e":37,"c":40,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"문학상담과글쓰기","g":"교양선택","e":39,"c":40,"s":[{"d":"수","a":900,"b":1020}],"t":"수15-17","mine":false},{"n":"디지털혁신과미래사회","g":"교양선택","e":33,"c":40,"s":[{"d":"목","a":660,"b":780}],"t":"목11-13","mine":false},{"n":"건강관리를위한식이조절과운동","g":"교양선택","e":40,"c":40,"s":[{"d":"화","a":840,"b":960}],"t":"화14-16","mine":false},{"n":"수와무한","g":"교양선택","e":39,"c":40,"s":[{"d":"금","a":660,"b":780}],"t":"금11-13","mine":false},{"n":"SDGs와ESG로보는지역사회","g":"교양선택","e":39,"c":40,"s":[{"d":"수","a":900,"b":1020}],"t":"수15-17","mine":false},{"n":"인간심리와평생학습","g":"교양선택","e":40,"c":40,"s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","mine":false},{"n":"ResidentialCollege리더십특강","g":"교양선택","e":35,"c":40,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"기업의신상품기획실무1","g":"교양선택","e":35,"c":40,"s":[{"d":"월","a":840,"b":960}],"t":"월14-16","mine":false},{"n":"지속가능사회를위한ESG","g":"교양선택","e":40,"c":40,"s":[{"d":"수","a":900,"b":1020}],"t":"수15-17","mine":false},{"n":"AI,내편만들기","g":"교양선택","e":53,"c":100,"s":[{"d":"수","a":900,"b":1080}],"t":"수15-18","mine":false},{"n":"창업실습2","g":"교양선택","e":13,"c":13,"s":[{"d":"수","a":1080,"b":1260}],"t":"수18-21","mine":false},{"n":"디지털콘텐츠와게임제작입문","g":"교양선택","e":28,"c":30,"s":[{"d":"수","a":900,"b":1020}],"t":"수15-17","mine":false},{"n":"AI와데이터분석을활용한품질관리","g":"교양선택","e":38,"c":40,"s":[{"d":"월","a":960,"b":1080}],"t":"월16-18","mine":false},{"n":"Amazon상품기획론","g":"교양선택","e":39,"c":40,"s":[{"d":"월","a":840,"b":960}],"t":"월14-16","mine":false},{"n":"교양라크로스","g":"교양선택","e":30,"c":30,"s":[{"d":"목","a":780,"b":900}],"t":"목13-15","mine":false},{"n":"교양라크로스","g":"교양선택","e":30,"c":30,"s":[{"d":"목","a":900,"b":1020}],"t":"목15-17","mine":false},{"n":"IoT설계기초:마이크로비트활용","g":"교양선택","e":22,"c":30,"s":[{"d":"목","a":660,"b":780}],"t":"목11-13","mine":false},{"n":"AI이후의세계:SF로읽는인간의미래","g":"교양선택","e":68,"c":80,"s":[{"d":"수","a":900,"b":1020}],"t":"수15-17","mine":false},{"n":"전쟁과문명의진화:기술,경제,AI로읽는인류전략사","g":"교양선택","e":80,"c":80,"s":[{"d":"월","a":780,"b":900}],"t":"월13-15","mine":false},{"n":"미래의바이오,의학,제약산업과AI","g":"교양선택","e":30,"c":40,"s":[{"d":"화","a":840,"b":1020}],"t":"화14-17","mine":false},{"n":"기업가정신과AI기반미래산업","g":"교양선택","e":37,"c":40,"s":[{"d":"월","a":840,"b":1020}],"t":"월14-17","mine":false},{"n":"디지털마케팅전략과콘텐츠제작실습","g":"교양선택","e":27,"c":30,"s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","mine":false},{"n":"디지털혁신과금융투자","g":"교양선택","e":50,"c":50,"s":[{"d":"화","a":540,"b":660}],"t":"화9-11","mine":false},{"n":"AI창업특허실습","g":"교양선택","e":28,"c":30,"s":[{"d":"화","a":900,"b":1020}],"t":"화15-17","mine":false},{"n":"AI창업특허의이해","g":"교양선택","e":41,"c":40,"s":[{"d":"목","a":660,"b":780}],"t":"목11-13","mine":false},{"n":"ESG창업의이해","g":"교양선택","e":40,"c":40,"s":[{"d":"금","a":660,"b":780}],"t":"금11-13","mine":false},{"n":"디지털크리에이터창업실습","g":"교양선택","e":29,"c":30,"s":[{"d":"목","a":780,"b":900}],"t":"목13-15","mine":false},{"n":"창업마인드셋","g":"교양선택","e":37,"c":40,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":false},{"n":"창업마인드셋","g":"교양선택","e":40,"c":40,"s":[{"d":"목","a":780,"b":900}],"t":"목13-15","mine":false},{"n":"창업마케팅실무","g":"교양선택","e":39,"c":40,"s":[{"d":"월","a":540,"b":660}],"t":"월9-11","mine":false},{"n":"창업성장컨설팅","g":"교양선택","e":38,"c":40,"s":[{"d":"금","a":540,"b":660}],"t":"금9-11","mine":false},{"n":"창업아이디어탐색","g":"교양선택","e":38,"c":40,"s":[{"d":"월","a":660,"b":780}],"t":"월11-13","mine":false},{"n":"창업투자실무","g":"교양선택","e":35,"c":40,"s":[{"d":"수","a":660,"b":780}],"t":"수11-13","mine":false},{"n":"디자인씽킹과창의적문제해결","g":"교양선택","e":37,"c":40,"s":[{"d":"수","a":600,"b":780}],"t":"수10-13","mine":false},{"n":"AI에이전트이해와활용","g":"교양선택","e":28,"c":30,"s":[{"d":"화","a":660,"b":780}],"t":"화11-13","mine":false},{"n":"피지컬AI이해","g":"교양선택","e":29,"c":30,"s":[{"d":"월","a":780,"b":900}],"t":"월13-15","mine":false},{"n":"인공지능과공존하기:권력,윤리,그리고글로벌미래","g":"교양선택","e":51,"c":80,"s":[{"d":"목","a":600,"b":780}],"t":"목10-13","mine":false},{"n":"AI와함께성장하는리더십의정석","g":"교양선택","e":19,"c":80,"s":[{"d":"화","a":780,"b":900}],"t":"화13-15","mine":false},{"n":"AI기반커리어포트폴리오디자인","g":"교양선택","e":35,"c":40,"s":[{"d":"수","a":990,"b":1110}],"t":"수16:30-18:30","mine":false},{"n":"AI시대,인간관계와내면의영성","g":"교양선택","e":30,"c":30,"s":[{"d":"월","a":780,"b":900}],"t":"월13-15","mine":false},{"n":"일본사회와문화","g":"교양선택","e":75,"c":80,"s":[{"d":"수","a":900,"b":1020}],"t":"수15-17","mine":false},{"n":"실용일본어","g":"교양선택","e":37,"c":40,"s":[{"d":"금","a":660,"b":780}],"t":"금11-13","mine":false},{"n":"회계정보의이해","g":"전공기초","e":27,"c":40,"s":[{"d":"금","a":780,"b":960}],"t":"금13-16","mine":false},{"n":"조직행동론","g":"전공핵심","e":18,"c":40,"s":[{"d":"목","a":900,"b":1080}],"t":"목15-18","mine":false},{"n":"증권투자론","g":"전공핵심","e":23,"c":40,"s":[{"d":"화","a":780,"b":960}],"t":"화13-16","mine":false},{"n":"K-POP한국어","g":"교양선택","e":40,"c":40,"s":[{"d":"금","a":900,"b":1020}],"t":"금15-17","mine":false},{"n":"K-POP한국어","g":"교양선택","e":37,"c":40,"s":[{"d":"금","a":780,"b":900}],"t":"금13-15","mine":false},{"n":"기업법","g":"전공심화","e":18,"c":40,"s":[{"d":"수","a":900,"b":1080}],"t":"수15-18","mine":false},{"n":"C프로그래밍","g":"전공핵심","e":11,"c":30,"s":[{"d":"목","a":840,"b":1080}],"t":"목14-18","mine":false},{"n":"일반화학2","g":"전공기초","e":11,"c":100,"s":[{"d":"월","a":960,"b":1050},{"d":"수","a":960,"b":1050}],"t":"월16-17:30 / 수16-17:30","mine":false},{"n":"ESG와SDGs이해","g":"교양필수","e":39,"c":40,"s":[{"d":"화","a":1020,"b":1140}],"t":"화17-19","mine":false},{"n":"ESG와SDGs이해","g":"교양필수","e":39,"c":40,"s":[{"d":"수","a":1020,"b":1140}],"t":"수17-19","mine":false}];
+const RAMP=['#e6eff9','#c3dbf2','#8fbce7','#4a8fd0','#1a5e9e','#0e4a84'];
+const rateOf=r=>r.e/r.c;
+function rampColor(v){            // v: 0~1.6 정도의 충원율
+  const t=Math.max(0,Math.min(1,(v-0.4)/1.0));
+  return RAMP[Math.min(RAMP.length-1,Math.round(t*(RAMP.length-1)))];
+}
+function renderDash(){
+  const n=DASH.length, over=DASH.filter(r=>r.e>=r.c).length;
+  const avg=Math.round(DASH.reduce((a,r)=>a+rateOf(r),0)/n*100);
+
+  /* 시간대 혼잡도 */
+  const cell={};
+  DASH.forEach(r=>r.s.forEach(s=>{
+    for(let hh=Math.floor(s.a/60); hh<Math.ceil(s.b/60); hh++){
+      const k=s.d+hh; (cell[k]=cell[k]||[]).push(rateOf(r));
+    }}));
+  const vals=Object.values(cell).map(v=>v.reduce((a,b)=>a+b,0)/v.length);
+  const lo=Math.min(...vals), hi=Math.max(...vals);
+  const ramp=m=>RAMP[Math.min(RAMP.length-1,Math.round((hi>lo?(m-lo)/(hi-lo):0)*(RAMP.length-1)))];
+  let hm=`<div class="hm" role="grid" aria-label="요일·시간대별 평균 충원율"><div class="lbl"></div>${DAYS.map(d=>`<div class="lbl">${d}</div>`).join('')}`;
+  for(let hh=9;hh<18;hh++){
+    hm+=`<div class="lbl">${hh}</div>`;
+    DAYS.forEach(d=>{
+      const v=cell[d+hh];
+      if(!v){ hm+=`<div class="cl e" role="gridcell" aria-label="${d}요일 ${hh}시 · 열리는 분반 없음">·</div>`; return; }
+      const m=v.reduce((a,b)=>a+b,0)/v.length;
+      const lab=`${d}요일 ${hh}시 · 분반 ${v.length}개 · 평균 충원율 ${Math.round(m*100)}%`;
+      hm+=`<div class="cl" tabindex="0" role="gridcell" aria-label="${lab}" title="${lab}"
+             style="background:${ramp(m)};${(m-lo)/(hi-lo||1)<0.7?'color:var(--ink)':''}">${Math.round(m*100)}</div>`;
+    });
+  }
+  hm+='</div>';
+  let tb=`<details class="hmtab"><summary>표로 보기</summary><table><thead><tr><th>시간</th>`
+    + DAYS.map(d=>`<th>${d}</th>`).join('') + `</tr></thead><tbody>`;
+  for(let hh=9;hh<18;hh++){
+    tb+=`<tr><th>${hh}시</th>` + DAYS.map(d=>{
+      const v=cell[d+hh];
+      return `<td>${v?Math.round(v.reduce((a,b)=>a+b,0)/v.length*100)+'%':'—'}</td>`;
+    }).join('') + `</tr>`;
+  }
+  tb+='</tbody></table></details>';
+
+  /* 같은 과목, 분반별 격차 */
+  const by={};
+  DASH.forEach(r=>{ (by[r.n]=by[r.n]||[]).push(r); });
+  const gaps=Object.entries(by).filter(([,v])=>v.length>1)
+    .map(([nm,v])=>({nm,v,gap:Math.max(...v.map(rateOf))-Math.min(...v.map(rateOf))}))
+    .sort((a,b)=>b.gap-a.gap).slice(0,6);
+
+  /* 경쟁 센 과목 */
+  const top=[...DASH].sort((a,b)=>rateOf(b)-rateOf(a)).slice(0,10);
+  const max=rateOf(top[0]);
+
+  document.getElementById('dashbody').innerHTML=
+    `<div class="dtiles">
+       <div class="dtile"><span class="v">${n}</span><span class="k">분반</span></div>
+       <div class="dtile"><span class="v">${over}</span><span class="k">정원을 넘긴 분반 — ${Math.round(over/n*100)}%</span></div>
+       <div class="dtile"><span class="v">${avg}%</span><span class="k">평균 충원율</span></div>
+       <div class="dtile"><span class="v">${Math.round(gaps[0].gap*100)}%p</span><span class="k">같은 과목 분반 간 최대 격차</span></div>
+     </div>
+     <div class="dgrid">
+       <div class="panel">
+         <h3>시간대별 혼잡도</h3>
+         <p class="ph">칸의 숫자는 그 시간에 열리는 분반들의 평균 충원율입니다.</p>
+         ${hm}
+         <div class="hmleg">${Math.round(lo*100)}%
+           ${RAMP.map(c=>`<span class="sw" style="background:${c}"></span>`).join('')}
+           ${Math.round(hi*100)}%</div>
+         ${tb}
+       </div>
+       <div>
+         <div class="panel" style="margin-bottom:1rem">
+           <h3>같은 과목인데 분반이 다릅니다</h3>
+           <p class="ph">한쪽이 몰릴 때 다른 분반은 비어 있습니다. 분반만 바꿔도 경쟁을 피할 수 있습니다.</p>
+           <div class="gaps">${gaps.map(g=>{
+             const sorted=[...g.v].sort((a,b)=>rateOf(a)-rateOf(b));
+             return `<div class="gap"><div class="gh"><span class="gn">${esc(g.nm)}</span>
+               <span class="gd">격차 ${Math.round(g.gap*100)}%p</span></div>
+               <div class="gsecs">${sorted.map((x,i)=>{
+                 const rt=Math.round(rateOf(x)*100);
+                 const cls=i===0?' low':(i===sorted.length-1?' high':'');
+                 return `<span class="gsec${cls}" title="${x.e}/${x.c}명">${esc(x.t)} <b>${rt}%</b></span>`;
+               }).join('')}</div></div>`;}).join('')}</div>
+         </div>
+         <div class="panel">
+           <h3>경쟁이 센 분반</h3>
+           <p class="ph">세로선이 정원 100%입니다.</p>
+           ${top.map(r=>{
+             const rt=rateOf(r);
+             return `<div class="brow"><span class="bn">${esc(r.n)}</span>
+               <span class="btrack" style="--ref:${(1/max*100).toFixed(1)}%">
+                 <span class="bfill" style="width:${(rt/max*100).toFixed(1)}%"></span></span>
+               <span class="bv">${Math.round(rt*100)}% <span style="color:var(--muted);font-weight:500">${r.e}/${r.c}</span></span></div>`;
+           }).join('')}
+         </div>
+       </div>
+     </div>
+     <p class="foot-note">2026-2학기 수강신청이 끝난 뒤의 확정 인원입니다. 다음 학기를 준비할 때
+       <b>직전 학기에 그 시간대가 얼마나 몰렸는지</b>를 보는 값으로 쓰면 됩니다.
+       같은 학기를 해마다 비교하려면 학기 데이터가 더 쌓여야 합니다.</p>`;
+}
+
+function paintHome(){
+  const cr=credits();
+  document.getElementById('hCnt').textContent=cart.length;
+  document.getElementById('hCr').textContent=cr;
+  document.getElementById('hReq').textContent=`${doneCount()}/${REQ.length}`;
+  document.getElementById('hReqTags').innerHTML=REQ.map(r=>{const s=reqState(r);
+    return `<span class="btag"${s.done?' style="border-color:var(--good);color:var(--good)"':''}>`
+      +`${r.k} ${s.done?'충족':`${r.need-s.p}${r.unit}`}</span>`;}).join('');
+}
+function go(s){
+  if((s==='pick'||s==='diag'||s==='dash') && !ready()){ gateMsg=true; s='set'; }
+  if(s==='set') gateMsg = gateMsg && !ready();
+  document.getElementById('home').hidden = s!=='home';
+  document.getElementById('pickwrap').hidden = s!=='pick';
+  document.getElementById('diagwrap').hidden = s!=='diag';
+  document.getElementById('setwrap').hidden = s!=='set';
+  document.getElementById('dashwrap').hidden = s!=='dash';
+  if(s==='pick') { measure(); render(); }
+  else if(s==='diag') renderDiag();
+  else if(s==='set') renderSet();
+  else if(s==='dash') renderDash();
+  else paintHome();
+  scrollTo({top:0,behavior:'instant'});
+}
+document.querySelectorAll('.szb[data-sz]').forEach(b=>b.addEventListener('click',()=>{
+  document.getElementById('app').classList.toggle('narrow', b.dataset.sz==='narrow');
+  
+document.querySelectorAll('.szb[data-sz]').forEach(x=>x.setAttribute('aria-pressed', x===b));
+  measure(); render();
+}));
+document.querySelectorAll('.szb[data-ui]').forEach(b=>b.addEventListener('click',()=>{
+  document.documentElement.style.setProperty('--ui', b.dataset.ui);
+  document.querySelectorAll('.szb[data-ui]').forEach(x=>x.setAttribute('aria-pressed', x===b));
+  measure(); render();
+}));
+addEventListener('resize',()=>{measure();render();});
+measure(); render(); renderSet(); paintHome(); go('home');
+</script>
+</body>
+</html>
