@@ -379,6 +379,18 @@ h1{font-size:2rem;font-weight:800;margin:0 0 .5rem;letter-spacing:-.045em;line-h
 .backb{font-family:var(--f);font-size:.85rem;font-weight:700;border:1px solid var(--rule);
   background:var(--surface);color:var(--ink2);padding:.4rem .9rem;border-radius:var(--pill);cursor:pointer}
 .backb:hover{border-color:var(--ink);color:var(--ink)}
+.opt.danger{border-color:var(--no);color:var(--no)}
+.navrow{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.homeb{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--f);font-size:.85rem;font-weight:700;
+  border:1px solid var(--rule);background:var(--surface);color:var(--ink2);padding:0 1rem;min-height:2.75rem;
+  border-radius:var(--pill);cursor:pointer}
+.homeb:hover{border-color:var(--ink);color:var(--ink)}
+.tabs{display:inline-flex;gap:.15rem;padding:.2rem;border-radius:var(--pill);background:var(--sunken);border:1px solid var(--rule)}
+.tab{font-family:var(--f);font-size:.88rem;font-weight:700;border:0;background:transparent;color:var(--ink2);
+  padding:0 1.1rem;min-height:2.75rem;border-radius:var(--pill);cursor:pointer;transition:background .14s,color .14s}
+.tab:hover{color:var(--ink)}
+.tab[aria-current="page"]{background:var(--ok);color:var(--onfill)}
+.homeb:focus-visible,.tab:focus-visible,.backb:focus-visible{outline:2px solid var(--ok);outline-offset:2px}
 @media (max-width:980px){
   .bento{grid-template-columns:1fr;grid-template-areas:"hero" "two" "three" "four" "wide"}
   .bcard.hero .btitle{font-size:1.75rem}
@@ -392,7 +404,7 @@ h1{font-size:2rem;font-weight:800;margin:0 0 .5rem;letter-spacing:-.045em;line-h
 </style>
 </head>
 <body>
-<button class="fab" id="fab" onclick="gateMsg=false;go('set')"><span class="dot"></span><span>설정 필요</span></button>
+<button class="fab" id="fab" onclick="openSet()"><span class="dot"></span><span>설정 필요</span></button>
 
 <div class="wrap top">
   <h1>ERICA 수강신청 도우미 <span class="draft">시안</span></h1>
@@ -470,15 +482,17 @@ h1{font-size:2rem;font-weight:800;margin:0 0 .5rem;letter-spacing:-.045em;line-h
 
 <div class="wrap" id="dashwrap" hidden><div class="app">
   <div class="hdr">
-    <button class="backb" onclick="go('home')">← 선택 창</button>
-    <span class="ttl">경쟁률</span><span class="sem">2026-2학기 수강신청 결과 · 광고홍보학과가 들을 수 있는 293개 분반</span>
+    <nav class="navrow" aria-label="화면 이동">
+      <button class="homeb" data-go="home"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9v12h13V9"/></svg>선택 창</button>
+      <span class="tabs"><button class="tab" data-go="pick">시간표</button><button class="tab" data-go="diag">진단</button><button class="tab" data-go="dash">경쟁률</button></span>
+    </nav><span class="sem">2026-2학기 수강신청 결과 · 광고홍보학과가 들을 수 있는 293개 분반</span>
   </div>
   <div style="padding:1.3rem" id="dashbody"></div>
 </div></div>
 
 <div class="wrap" id="setwrap" hidden><div class="app setwrap">
   <div class="hdr">
-    <button class="backb" onclick="go('home')">← 선택 창</button>
+    <button class="backb" onclick="back()">← 뒤로</button>
     <span class="ttl">설정</span><span class="sem">학사 정보</span>
   </div>
   <div style="padding:1.5rem" id="setbody"></div>
@@ -486,8 +500,10 @@ h1{font-size:2rem;font-weight:800;margin:0 0 .5rem;letter-spacing:-.045em;line-h
 
 <div class="wrap" id="diagwrap" hidden><div class="app" id="app2">
   <div class="hdr">
-    <button class="backb" onclick="go('home')">← 선택 창</button>
-    <span class="ttl">진단</span><span class="sem">광고홍보학과 3학년 · 2024학번 이후</span>
+    <nav class="navrow" aria-label="화면 이동">
+      <button class="homeb" data-go="home"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9v12h13V9"/></svg>선택 창</button>
+      <span class="tabs"><button class="tab" data-go="pick">시간표</button><button class="tab" data-go="diag">진단</button><button class="tab" data-go="dash">경쟁률</button></span>
+    </nav><span class="sem">광고홍보학과 3학년 · 2024학번 이후</span>
   </div>
   <div class="dcols">
     <div class="dleft" id="dleft"></div>
@@ -497,8 +513,10 @@ h1{font-size:2rem;font-weight:800;margin:0 0 .5rem;letter-spacing:-.045em;line-h
 
 <div class="wrap" id="pickwrap" hidden><div class="app" id="app">
   <div class="hdr">
-    <button class="backb" onclick="go('home')">← 선택 창</button>
-    <span class="ttl">담기</span><span class="sem">2026-2학기</span>
+    <nav class="navrow" aria-label="화면 이동">
+      <button class="homeb" data-go="home"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9v12h13V9"/></svg>선택 창</button>
+      <span class="tabs"><button class="tab" data-go="pick">시간표</button><button class="tab" data-go="diag">진단</button><button class="tab" data-go="dash">경쟁률</button></span>
+    </nav><span class="sem">2026-2학기</span>
     <span class="right">
       <span class="cnt" id="cnt"></span>
       <span class="pips" id="pips"></span>
@@ -722,6 +740,7 @@ function render(){
   document.getElementById('cnt').innerHTML =
     `${cart.length}<small>과목</small> ${cr}<small>학점</small> <small>· 요건 ${doneCount()}/${REQ.length}</small>`;
   document.getElementById('pips').innerHTML = REQ.map(r=>`<i class="pip${reqState(r).done?' on':''}"></i>`).join('');
+  save();
 }
 
 /* ── 진단: 졸업요건 이수 현황 (이수 97 / 남은 29 — 포털 결과로 검증된 값) ── */
@@ -796,7 +815,16 @@ function setDept(d){ SET.dept=d; renderSet(); }
 function setCohort(c){ SET.cohort=c; renderSet(); }
 function setYear(y){ SET.year=y; renderSet(); }
 function loadSample(){ SET.loaded=true; renderSet(); }
-function resetSet(){ SET={dept:null,cohort:null,year:null,loaded:false}; renderSet(); }
+let resetArm=false, resetT=null;
+function resetSet(){
+  if(!resetArm){ resetArm=true; renderSet(); clearTimeout(resetT); resetT=setTimeout(()=>{resetArm=false;renderSet();},4000); return; }
+  clearTimeout(resetT); resetArm=false;
+  SET={dept:null,cohort:null,year:null,loaded:false};
+  cart=[]; free=new Set(); filter=null; slotF=null; undoItem=null; flashMsg=null; afterSet=null;
+  for(const k in SCROLL) delete SCROLL[k];
+  try{ localStorage.removeItem(STORE); }catch(e){}
+  render(); renderSet(); paintHome();
+}
 function renderSet(){
   document.getElementById('setbody').innerHTML=
     (gateMsg&&!ready()?`<div class="notice"><span>⚠</span><span>학사 정보를 먼저 넣어야 나머지 화면이 열립니다. 아래 네 칸이면 끝납니다.</span></div>`:'')
@@ -824,11 +852,12 @@ function renderSet(){
                <button class="opt" onclick="loadSample()">예시 이수내역 불러오기</button>`}
         </div></div>`
     + (ready()
-        ? `<button class="cta" style="margin-top:0" onclick="go('home')">저장하고 시작하기 →</button>`
+        ? `<button class="cta" style="margin-top:0" onclick="finishSet()">저장하고 ${afterSet?NEXT[afterSet]:'시작하기'} →</button>`
         : `<p class="hint" style="margin:0">네 칸을 다 채우면 시작할 수 있습니다.</p>`)
-    + (ready()?`<button class="opt" style="margin-left:.5rem" onclick="resetSet()">초기화</button>`:'');
+    + ((ready()||cart.length)?`<button class="opt${resetArm?' danger':''}" style="margin-left:.5rem" onclick="resetSet()">${resetArm?'담은 과목까지 지워집니다 — 지우기':'처음부터 다시'}</button>`:'');
   const f=document.getElementById('fab');
   if(f){ f.classList.toggle('ok',ready()); f.lastElementChild.textContent = ready()?'설정':'설정 필요'; }
+  save();
 }
 
 
@@ -945,21 +974,78 @@ function paintHome(){
     return `<span class="btag"${s.done?' style="border-color:var(--good);color:var(--good)"':''}>`
       +`${r.k} ${s.done?'충족':`${r.need-s.p}${r.unit}`}</span>`;}).join('');
 }
-function go(s){
-  if((s==='pick'||s==='diag'||s==='dash') && !ready()){ gateMsg=true; s='set'; }
+/* ── 화면 이동: 주소(#pick 등) · 뒤로가기 · 스크롤 기억 · 저장 ── */
+const SCREENS={home:'home',set:'setwrap',diag:'diagwrap',pick:'pickwrap',dash:'dashwrap'};
+const NEXT={pick:'시간표 열기',diag:'남은 요건 보기',dash:'경쟁률 보기'};
+const STORE='erica-demo-v1';
+const SCROLL={};
+let cur=null, afterSet=null, depth=0;
+
+function save(){
+  try{ localStorage.setItem(STORE, JSON.stringify({SET, cart, free:[...free]})); }catch(e){}
+}
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem(STORE)||'null'); if(!d) return;
+    if(d.SET) SET=Object.assign({dept:null,cohort:null,year:null,loaded:false}, d.SET);
+    if(Array.isArray(d.cart)) cart=d.cart.filter(id=>byId(id));
+    if(Array.isArray(d.free)) free=new Set(d.free);
+  }catch(e){}
+}
+const inner=s=>['#right','#dright'].map(q=>document.querySelector('#'+SCREENS[s]+' '+q)).filter(Boolean);
+function saveScroll(){
+  if(cur) SCROLL[cur]={y:scrollY, r:inner(cur).map(e=>e.scrollTop)};
+}
+function restoreScroll(s){
+  const v=SCROLL[s];
+  inner(s).forEach((e,i)=>{ e.scrollTop = v ? (v.r[i]||0) : 0; });
+  scrollTo({top: v ? v.y : 0, behavior:'instant'});
+}
+const routeOf=()=>{ const h=decodeURIComponent(location.hash.slice(1)); return SCREENS[h]?h:'home'; };
+const urlOf=s=> s==='home' ? location.href.split('#')[0] : '#'+s;
+
+function go(s, how='push'){
+  if(!SCREENS[s]) s='home';
+  const want=s;
+  if((s==='pick'||s==='diag'||s==='dash') && !ready()){ gateMsg=true; afterSet=s; s='set'; }
   if(s==='set') gateMsg = gateMsg && !ready();
-  document.getElementById('home').hidden = s!=='home';
-  document.getElementById('pickwrap').hidden = s!=='pick';
-  document.getElementById('diagwrap').hidden = s!=='diag';
-  document.getElementById('setwrap').hidden = s!=='set';
-  document.getElementById('dashwrap').hidden = s!=='dash';
+  saveScroll();
+  for(const k in SCREENS) document.getElementById(SCREENS[k]).hidden = k!==s;
   if(s==='pick') { measure(); render(); }
-  else if(s==='diag') renderDiag();
+  else if(s==='diag'){
+    const sem=document.querySelector('#diagwrap .sem');
+    if(sem&&ready()) sem.textContent=`${SET.dept} ${SET.year}학년 · ${SET.cohort==='new'?'2024학번 이후':'2023학번 이전'}`;
+    renderDiag();
+  }
   else if(s==='set') renderSet();
   else if(s==='dash') renderDash();
   else paintHome();
-  scrollTo({top:0,behavior:'instant'});
+  document.querySelectorAll('[data-go]').forEach(b=>{
+    if(b.classList.contains('tab')) b.setAttribute('aria-current', b.dataset.go===s?'page':'false');
+  });
+  try{
+    if(how==='push' && s!==cur){ depth++; history.pushState({s,d:depth},'',urlOf(s)); }
+    else if(how==='replace' || (how==='pop' && want!==s)) history.replaceState({s,d:depth},'',urlOf(s));
+  }catch(e){}
+  cur=s;
+  restoreScroll(s);
 }
+function back(){
+  if(depth>0){ try{ history.back(); return; }catch(e){} }
+  go('home');
+}
+function openSet(){
+  gateMsg=false;
+  if(cur && cur!=='set') afterSet = (cur==='home') ? null : cur;
+  go('set');
+}
+function finishSet(){
+  const to=afterSet||'home'; afterSet=null;
+  go(to,'replace');
+}
+addEventListener('popstate',e=>{ depth=(e.state&&e.state.d)||0; go(routeOf(),'pop'); });
+document.addEventListener('click',e=>{ const b=e.target.closest('[data-go]'); if(b) go(b.dataset.go); });
+try{ history.scrollRestoration='manual'; }catch(e){}
 document.querySelectorAll('.szb[data-sz]').forEach(b=>b.addEventListener('click',()=>{
   document.getElementById('app').classList.toggle('narrow', b.dataset.sz==='narrow');
   
@@ -972,7 +1058,8 @@ document.querySelectorAll('.szb[data-ui]').forEach(b=>b.addEventListener('click'
   measure(); render();
 }));
 addEventListener('resize',()=>{measure();render();});
-measure(); render(); renderSet(); paintHome(); go('home');
+load(); measure(); render(); renderSet(); paintHome();
+go(routeOf(),'replace');
 </script>
 </body>
 </html>
